@@ -1,28 +1,26 @@
-package web
+package handlers
 
 import (
 	"bufio"
 	"encoding/json"
 	"net/http"
 	"os"
+	"rest-api-go/internal/dto"
+	"rest-api-go/internal/models"
 )
 
-type Event struct {
-	BlockNumber   uint64 `json:"BlockNumber"`
-	TransactionID string `json:"TransactionID"`
-	ChaincodeName string `json:"ChaincodeName"`
-	EventName     string `json:"EventName"`
-	Payload       string `json:"Payload"`
+const (
+	filename = "events.log"
+)
+
+type EventHandler struct {
 }
 
-type Docs struct {
-	Docs []Event `json:"docs"`
+func InitEventHandler() *EventHandler {
+	return &EventHandler{}
 }
 
-func Events(w http.ResponseWriter, r *http.Request) {
-	filename := "events.log"
-
-	// Open the file
+func (h *EventHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open(filename)
 	if err != nil {
 		http.Error(w, "Failed to open file", http.StatusInternalServerError)
@@ -33,11 +31,11 @@ func Events(w http.ResponseWriter, r *http.Request) {
 	// Create a scanner to read the file line by line
 	scanner := bufio.NewScanner(file)
 
-	var events []Event
+	var events []models.Event
 
 	// Read each line from the file
 	for scanner.Scan() {
-		var event Event
+		var event models.Event
 
 		// Parse the JSON data from the line
 		if err := json.Unmarshal([]byte(scanner.Text()), &event); err != nil {
@@ -49,7 +47,7 @@ func Events(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Marshal the events array into JSON
-	docs := Docs{Docs: events}
+	docs := dto.DocsResponse[models.Event]{Docs: events}
 	responseJSON, err := json.Marshal(docs)
 	if err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)

@@ -1,4 +1,4 @@
-package web
+package handlers
 
 import (
 	"bytes"
@@ -9,29 +9,25 @@ import (
 	"os"
 	"time"
 
+	"rest-api-go/internal/dto"
+	"rest-api-go/pkg/org"
+
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
 
-// InvokeRequest represents the structure of the JSON object containing invocation request data.
-type InvokeRequest struct {
-	ChaincodeID string   `json:"chaincodeid"`
-	ChannelID   string   `json:"channelid"`
-	Function    string   `json:"function"`
-	Args        []string `json:"args"`
+type InvokeHandler struct {
+	OrgSetup org.OrgSetup
 }
 
-// InvokeResponse represents the structure of the JSON object to be returned in the response.
-type InvokeResponse struct {
-	TransactionID string `json:"transaction_id"`
-	Result        string `json:"result"`
+func InitInvokeHandler(orgSetup org.OrgSetup) *InvokeHandler {
+	return &InvokeHandler{OrgSetup: orgSetup}
 }
 
-// Invoke handles chaincode invoke requests.
-func (setup *OrgSetup) Invoke(w http.ResponseWriter, r *http.Request) {
+func (h *InvokeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received Invoke request")
 
 	// Decode the JSON object
-	var invokeReq InvokeRequest
+	var invokeReq dto.InvokeRequest
 	if err := json.NewDecoder(r.Body).Decode(&invokeReq); err != nil {
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
@@ -39,7 +35,7 @@ func (setup *OrgSetup) Invoke(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("channel: %s, chaincode: %s, function: %s, args: %v\n", invokeReq.ChannelID, invokeReq.ChaincodeID, invokeReq.Function, invokeReq.Args)
 
-	network := setup.Gateway.GetNetwork(invokeReq.ChannelID)
+	network := h.OrgSetup.Gateway.GetNetwork(invokeReq.ChannelID)
 	contract := network.GetContract(invokeReq.ChaincodeID)
 
 	txnProposal, err := contract.NewProposal(invokeReq.Function, client.WithArguments(invokeReq.Args...))
@@ -70,7 +66,7 @@ func (setup *OrgSetup) Invoke(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Response struct
-	response := InvokeResponse{
+	response := dto.InvokeResponse{
 		TransactionID: txnCommitted.TransactionID(),
 		Result:        string(txnEndorsed.Result()), // Converting byte slice to string
 	}
@@ -86,7 +82,7 @@ func (setup *OrgSetup) Invoke(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 
 	// start a new goroutine
-	go replayChaincodeEvents(setup.Context, network, invokeReq.ChaincodeID, status.BlockNumber)
+	go replayChaincodeEvents(h.OrgSetup.Context, network, invokeReq.ChaincodeID, status.BlockNumber)
 }
 
 // Replay events from the block containing the first transaction

@@ -1,4 +1,4 @@
-package web
+package handlers
 
 import (
 	"encoding/json"
@@ -6,19 +6,22 @@ import (
 	"net/http"
 	"os/exec"
 	"rest-api-go/constants"
+	"rest-api-go/internal/dto"
 )
 
-// IdentityRequest represents the structure of the JSON object containing identity request data.
-type IdentityRequest struct {
-	Username string `json:"username"`
+type IdentityHandler struct {
+}
+
+func InitIdentityHandler() *IdentityHandler {
+	return &IdentityHandler{}
 }
 
 // Register and enroll an identity.
-func Identity(w http.ResponseWriter, r *http.Request) {
+func (h *IdentityHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received Identity request")
 
 	// Decode the JSON object
-	var identityRequest IdentityRequest
+	var identityRequest dto.IdentityRequest
 	if err := json.NewDecoder(r.Body).Decode(&identityRequest); err != nil {
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
@@ -36,7 +39,7 @@ func Identity(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Script output:", string(output))
 
 	// Response struct
-	response := IdentityRequest{
+	response := dto.IdentityRequest{
 		Username: identityRequest.Username,
 	}
 

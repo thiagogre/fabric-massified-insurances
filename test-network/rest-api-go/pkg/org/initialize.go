@@ -1,4 +1,4 @@
-package web
+package org
 
 import (
 	"context"
@@ -15,12 +15,27 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-// Initialize the setup for the organization.
-func Initialize(setup OrgSetup) (*OrgSetup, error) {
-	log.Printf("Initializing connection for %s...\n", setup.OrgName)
-	clientConnection := setup.newGrpcConnection()
-	id := setup.newIdentity()
-	sign := setup.newSign()
+// OrgSetup contains organization's config to interact with the network.
+type OrgSetup struct {
+	OrgName       string
+	MSPID         string
+	CryptoPath    string
+	CertPath      string
+	KeyPath       string
+	TLSCertPath   string
+	PeerEndpoint  string
+	GatewayPeer   string
+	Gateway       client.Gateway
+	Context       context.Context
+	CancelContext context.CancelFunc
+}
+
+// Initialize the orgSetup for the organization.
+func Initialize(orgSetup OrgSetup) (*OrgSetup, error) {
+	log.Printf("Initializing connection for %s...\n", orgSetup.OrgName)
+	clientConnection := orgSetup.newGrpcConnection()
+	id := orgSetup.newIdentity()
+	sign := orgSetup.newSign()
 
 	gateway, err := client.Connect(
 		id,
@@ -34,30 +49,30 @@ func Initialize(setup OrgSetup) (*OrgSetup, error) {
 	if err != nil {
 		panic(err)
 	}
-	setup.Gateway = *gateway
+	orgSetup.Gateway = *gateway
 
 	// Context used for event listening
 	ctx, cancel := context.WithCancel(context.Background())
-	setup.Context = ctx
-	setup.CancelContext = cancel
+	orgSetup.Context = ctx
+	orgSetup.CancelContext = cancel
 
 	log.Println("Initialization complete")
 
-	return &setup, nil
+	return &orgSetup, nil
 }
 
 // newGrpcConnection creates a gRPC connection to the Gateway server.
-func (setup OrgSetup) newGrpcConnection() *grpc.ClientConn {
-	certificate, err := loadCertificate(setup.TLSCertPath)
+func (orgSetup OrgSetup) newGrpcConnection() *grpc.ClientConn {
+	certificate, err := loadCertificate(orgSetup.TLSCertPath)
 	if err != nil {
 		panic(err)
 	}
 
 	certPool := x509.NewCertPool()
 	certPool.AddCert(certificate)
-	transportCredentials := credentials.NewClientTLSFromCert(certPool, setup.GatewayPeer)
+	transportCredentials := credentials.NewClientTLSFromCert(certPool, orgSetup.GatewayPeer)
 
-	connection, err := grpc.NewClient(setup.PeerEndpoint, grpc.WithTransportCredentials(transportCredentials))
+	connection, err := grpc.NewClient(orgSetup.PeerEndpoint, grpc.WithTransportCredentials(transportCredentials))
 	if err != nil {
 		panic(fmt.Errorf("failed to create gRPC connection: %w", err))
 	}
@@ -66,13 +81,13 @@ func (setup OrgSetup) newGrpcConnection() *grpc.ClientConn {
 }
 
 // newIdentity creates a client identity for this Gateway connection using an X.509 certificate.
-func (setup OrgSetup) newIdentity() *identity.X509Identity {
-	certificate, err := loadCertificate(setup.CertPath)
+func (orgSetup OrgSetup) newIdentity() *identity.X509Identity {
+	certificate, err := loadCertificate(orgSetup.CertPath)
 	if err != nil {
 		panic(err)
 	}
 
-	id, err := identity.NewX509Identity(setup.MSPID, certificate)
+	id, err := identity.NewX509Identity(orgSetup.MSPID, certificate)
 	if err != nil {
 		panic(err)
 	}
@@ -81,12 +96,12 @@ func (setup OrgSetup) newIdentity() *identity.X509Identity {
 }
 
 // newSign creates a function that generates a digital signature from a message digest using a private key.
-func (setup OrgSetup) newSign() identity.Sign {
-	files, err := os.ReadDir(setup.KeyPath)
+func (orgSetup OrgSetup) newSign() identity.Sign {
+	files, err := os.ReadDir(orgSetup.KeyPath)
 	if err != nil {
 		panic(fmt.Errorf("failed to read private key directory: %w", err))
 	}
-	privateKeyPEM, err := os.ReadFile(path.Join(setup.KeyPath, files[0].Name()))
+	privateKeyPEM, err := os.ReadFile(path.Join(orgSetup.KeyPath, files[0].Name()))
 
 	if err != nil {
 		panic(fmt.Errorf("failed to read private key file: %w", err))

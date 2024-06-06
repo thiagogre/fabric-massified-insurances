@@ -6,7 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"rest-api-go/constants"
-	"rest-api-go/web"
+	"rest-api-go/internal/routes"
+	"rest-api-go/pkg/org"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
@@ -14,7 +15,7 @@ import (
 func main() {
 	//Initialize setup for Org1
 	cryptoPath := constants.TestNetworkPath + "organizations/peerOrganizations/org1.example.com"
-	orgConfig := web.OrgSetup{
+	orgConfig := org.OrgSetup{
 		OrgName:      "Org1",
 		MSPID:        "Org1MSP",
 		CertPath:     cryptoPath + "/users/BackendClient@org1.example.com/msp/signcerts/cert.pem",
@@ -24,7 +25,7 @@ func main() {
 		GatewayPeer:  "peer0.org1.example.com",
 	}
 
-	orgSetup, err := web.Initialize(orgConfig)
+	orgSetup, err := org.Initialize(orgConfig)
 	if err != nil {
 		fmt.Println("Error initializing setup for Org1: ", err)
 	}
@@ -34,7 +35,7 @@ func main() {
 
 	startChaincodeEventListening(orgSetup.Context, network, "mychannel")
 
-	web.Serve(web.OrgSetup(*orgSetup))
+	routes.Serve(org.OrgSetup(*orgSetup))
 }
 
 func startChaincodeEventListening(ctx context.Context, network *client.Network, chaincodeID string) {

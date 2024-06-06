@@ -1,13 +1,22 @@
-package web
+package handlers
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"rest-api-go/pkg/org"
 )
 
-// Query handles chaincode query requests.
-func (setup OrgSetup) Query(w http.ResponseWriter, r *http.Request) {
+type QueryHandler struct {
+	OrgSetup org.OrgSetup
+}
+
+func InitQueryHandler(orgSetup org.OrgSetup) *QueryHandler {
+	return &QueryHandler{OrgSetup: orgSetup}
+}
+
+func (h *QueryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received Query request")
 	queryParams := r.URL.Query()
 	chainCodeName := queryParams.Get("chaincodeid")
@@ -15,7 +24,7 @@ func (setup OrgSetup) Query(w http.ResponseWriter, r *http.Request) {
 	function := queryParams.Get("function")
 	args := r.URL.Query()["args"]
 	fmt.Printf("channel: %s, chaincode: %s, function: %s, args: %s\n", channelID, chainCodeName, function, args)
-	network := setup.Gateway.GetNetwork(channelID)
+	network := h.OrgSetup.Gateway.GetNetwork(channelID)
 	contract := network.GetContract(chainCodeName)
 	evaluateResponse, err := contract.EvaluateTransaction(function, args...)
 	if err != nil {
