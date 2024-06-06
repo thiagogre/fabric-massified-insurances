@@ -1,0 +1,26 @@
+[
+	{
+		"query": "ReadAsset",
+		"args": ["asset1"]
+	},
+	{
+		"query": "GetAllAssets",
+		"args": []
+	},
+	{
+		"invoke": "CreateAsset",
+		"args": ["asset1", "blue", "71", "Tom", "220"]
+	},
+	{
+		"invoke": "UpdateAsset",
+		"args": ["asset1", "yellow", "71", "Tom", "220"]
+	},
+	{
+		"invoke": "GetAssetHistory",
+		"args": ["asset1"]
+	},
+	{
+		"invoke": "GetAssetTransactionsHistory",
+		"args": ["asset1"]
+	}
+]
