@@ -10,15 +10,15 @@ type AuthService struct {
 	UserRepository repositories.UserRepository
 }
 
-func (s *AuthService) AuthenticateUser(username, password string) (*models.User, bool, error) {
+func (s *AuthService) AuthenticateUser(username, password string) (*models.User, error) {
 	user, err := s.UserRepository.GetUserById(username)
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
 	if !utils.CheckPasswordHash(password, user.Token) {
-		return nil, false, nil
+		return nil, nil
 	}
 
-	return user, true, nil
+	return user, nil
 }
