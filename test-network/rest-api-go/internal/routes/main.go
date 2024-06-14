@@ -5,6 +5,7 @@ import (
 
 	"github.com/rs/cors"
 
+	"rest-api-go/constants"
 	"rest-api-go/pkg/db"
 	"rest-api-go/pkg/logger"
 	"rest-api-go/pkg/org"
@@ -12,7 +13,7 @@ import (
 
 const (
 	dbType     = db.SQLite
-	dbPath     = "../organizations/fabric-ca/org1/fabric-ca-server.db"
+	dbPath     = constants.TestNetworkPath + "organizations/fabric-ca/org1/fabric-ca-server.db"
 	serverAddr = ":3001"
 )
 
