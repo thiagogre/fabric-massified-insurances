@@ -130,18 +130,21 @@ func writeEventToBuffer(event *client.ChaincodeEvent, buffer *bytes.Buffer) erro
 	// Marshal the event into JSON
 	eventBytes, err := json.Marshal(event)
 	if err != nil {
+		logger.Error(err.Error())
 		return err
 	}
 
 	// Write the event bytes to the buffer
 	_, err = buffer.Write(eventBytes)
 	if err != nil {
+		logger.Error(err.Error())
 		return err
 	}
 
 	// Add a newline separator between events
 	_, err = buffer.WriteString("\n")
 	if err != nil {
+		logger.Error(err.Error())
 		return err
 	}
 
@@ -153,6 +156,7 @@ func writeBufferToFile(buffer *bytes.Buffer, filename string) error {
 	// Create a new file or truncate an existing file
 	file, err := os.Create(filename)
 	if err != nil {
+		logger.Error(err.Error())
 		return err
 	}
 	defer file.Close()
@@ -160,6 +164,7 @@ func writeBufferToFile(buffer *bytes.Buffer, filename string) error {
 	// Write the buffer content to the file
 	_, err = buffer.WriteTo(file)
 	if err != nil {
+		logger.Error(err.Error())
 		return err
 	}
 
