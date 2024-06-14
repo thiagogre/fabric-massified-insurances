@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
 
 	"rest-api-go/internal/dto"
+	"rest-api-go/pkg/logger"
 	"rest-api-go/pkg/org"
+	"rest-api-go/pkg/utils"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
@@ -24,74 +25,67 @@ func InitInvokeHandler(orgSetup org.OrgSetup) *InvokeHandler {
 }
 
 func (h *InvokeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Received Invoke request")
+	logger.Info("Received a request")
 
-	// Decode the JSON object
-	var invokeReq dto.InvokeRequest
-	if err := json.NewDecoder(r.Body).Decode(&invokeReq); err != nil {
-		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+	var body dto.InvokeRequest
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		logger.Error("Failed to parse request body" + err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to parse request body")
 		return
 	}
 
-	fmt.Printf("channel: %s, chaincode: %s, function: %s, args: %v\n", invokeReq.ChannelID, invokeReq.ChaincodeID, invokeReq.Function, invokeReq.Args)
+	logger.Info(body)
 
-	network := h.OrgSetup.Gateway.GetNetwork(invokeReq.ChannelID)
-	contract := network.GetContract(invokeReq.ChaincodeID)
-
-	txnProposal, err := contract.NewProposal(invokeReq.Function, client.WithArguments(invokeReq.Args...))
+	network := h.OrgSetup.Gateway.GetNetwork(body.ChannelID)
+	contract := network.GetContract(body.ChaincodeID)
+	txnProposal, err := contract.NewProposal(body.Function, client.WithArguments(body.Args...))
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error creating txn proposal: %s", err), http.StatusInternalServerError)
+		logger.Error("Error creating txn proposal " + err.Error())
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Error creating txn proposal "+err.Error())
 		return
 	}
+
 	txnEndorsed, err := txnProposal.Endorse()
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error endorsing txn: %s", err), http.StatusInternalServerError)
+		logger.Error("Error endorsing txn " + err.Error())
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Error endorsing txn "+err.Error())
 		return
 	}
+
 	txnCommitted, err := txnEndorsed.Submit()
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error submitting transaction: %s", err), http.StatusInternalServerError)
+		logger.Error("Error submitting transaction " + err.Error())
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Error submitting transaction "+err.Error())
 		return
 	}
 
 	status, err := txnCommitted.Status()
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to get transaction commit status: %s", err), http.StatusInternalServerError)
+		logger.Error("Failed to get transaction commit status " + err.Error())
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get transaction commit status "+err.Error())
 		return
 	}
 
 	if !status.Successful {
-		http.Error(w, fmt.Sprintf("Failed to commit transaction with status code %v", status.Code), http.StatusInternalServerError)
+		logger.Error("Failed to commit transaction with status code " + string(status.Code))
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to commit transaction with status code "+string(status.Code))
 		return
 	}
 
-	// Response struct
-	response := dto.InvokeResponse{
-		TransactionID: txnCommitted.TransactionID(),
-		Result:        string(txnEndorsed.Result()), // Converting byte slice to string
-	}
-
-	// Convert response to JSON
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResponse)
+	logger.Success(status)
+	utils.SuccessResponse(w, http.StatusOK, status)
 
 	// start a new goroutine
-	go replayChaincodeEvents(h.OrgSetup.Context, network, invokeReq.ChaincodeID, status.BlockNumber)
+	go replayChaincodeEvents(h.OrgSetup.Context, network, body.ChaincodeID, status.BlockNumber)
 }
 
 // Replay events from the block containing the first transaction
 func replayChaincodeEvents(ctx context.Context, network *client.Network, chaincodeID string, startBlock uint64) {
-	fmt.Println("\n*** Start chaincode event replay")
+	logger.Info("*** Start chaincode event replay ***")
 
 	events, err := network.ChaincodeEvents(ctx, chaincodeID, client.WithStartBlock(0))
 	if err != nil {
-		fmt.Printf("Failed to start chaincode event listening: %v\n", err)
+		logger.Error("Failed to start chaincode event listening " + err.Error())
 		return
 	}
 
@@ -101,32 +95,31 @@ func replayChaincodeEvents(ctx context.Context, network *client.Network, chainco
 	for {
 		select {
 		case <-timeout:
-			fmt.Println("Event replay timeout reached")
+			logger.Info("*** Event replay timeout reached ***")
+
 			// Write buffer content to the file
 			if err := writeBufferToFile(&eventsBuffer, "events.log"); err != nil {
-				fmt.Println("Error writing buffer to file:", err)
+				logger.Error("Error writing buffer to file " + err.Error())
 				return
 			}
 
 		case event, ok := <-events:
 			if !ok {
-				fmt.Println("Event channel closed")
+				logger.Info("*** Event channel closed ***")
 				return
 			}
 
-			// writeEventToFile(event, "events.json")
 			writeEventToBuffer(event, &eventsBuffer)
 
-			fmt.Printf("\n<-- Replayed event payload %s\n", event.Payload)
+			logger.Info(string(event.Payload))
 
 			// // Example condition to stop listening; modify as needed.
 			// if event.EventName == "DeleteAsset" {
-			// 	fmt.Println("Stopping event replay on 'DeleteAsset' event")
 			// 	return
 			// }
 
 		case <-ctx.Done():
-			fmt.Println("Context canceled, stopping event replay")
+			logger.Info("*** Context canceled, stopping event replay ***")
 			return
 		}
 	}

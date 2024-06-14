@@ -7,6 +7,8 @@ import (
 	"os"
 	"rest-api-go/internal/dto"
 	"rest-api-go/internal/models"
+	"rest-api-go/pkg/logger"
+	"rest-api-go/pkg/utils"
 )
 
 const (
@@ -21,43 +23,30 @@ func InitEventHandler() *EventHandler {
 }
 
 func (h *EventHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	logger.Info("Received a request")
+
 	file, err := os.Open(filename)
 	if err != nil {
-		http.Error(w, "Failed to open file", http.StatusInternalServerError)
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to open file")
 		return
 	}
 	defer file.Close()
 
-	// Create a scanner to read the file line by line
-	scanner := bufio.NewScanner(file)
-
 	var events []models.Event
-
-	// Read each line from the file
+	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		var event models.Event
 
 		// Parse the JSON data from the line
 		if err := json.Unmarshal([]byte(scanner.Text()), &event); err != nil {
-			http.Error(w, "Failed to parse file data", http.StatusInternalServerError)
+			utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to parse file data")
 			return
 		}
 
 		events = append(events, event)
 	}
 
-	// Marshal the events array into JSON
-	docs := dto.DocsResponse[models.Event]{Docs: events}
-	responseJSON, err := json.Marshal(docs)
-	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
-	}
-
-	// Set the response headers
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	// Write the response JSON to the client
-	w.Write(responseJSON)
+	response := dto.DocsResponse[models.Event]{Docs: events}
+	logger.Success(response)
+	utils.SuccessResponse(w, http.StatusOK, response)
 }

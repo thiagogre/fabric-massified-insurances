@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os/exec"
 	"rest-api-go/constants"
 	"rest-api-go/internal/dto"
+	"rest-api-go/pkg/logger"
+	"rest-api-go/pkg/utils"
 )
 
 type IdentityHandler struct {
@@ -18,38 +19,30 @@ func InitIdentityHandler() *IdentityHandler {
 
 // Register and enroll an identity.
 func (h *IdentityHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Received Identity request")
+	logger.Info("Received a request")
 
-	// Decode the JSON object
-	var identityRequest dto.IdentityRequest
-	if err := json.NewDecoder(r.Body).Decode(&identityRequest); err != nil {
-		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+	var body dto.IdentityRequest
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to parse request body")
 		return
 	}
 
-	cmd := exec.Command("/bin/bash", "./registerEnrollIdentity.sh", identityRequest.Username)
+	logger.Info(body)
+
+	cmd := exec.Command("/bin/bash", "./registerEnrollIdentity.sh", body.Username)
 	cmd.Dir = constants.TestNetworkPath
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error executing script:", err)
-		fmt.Println("Script output:", string(output))
-		return
-	}
-	fmt.Println("Script output:", string(output))
-
-	// Response struct
-	response := dto.IdentityRequest{
-		Username: identityRequest.Username,
-	}
-
-	// Convert response to JSON
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		logger.Error("Error executing script: " + err.Error())
+		logger.Error("Script output: " + string(output))
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Error executing script")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResponse)
+	logger.Info("Script output: " + string(output))
+
+	response := dto.SuccessResponse{Success: true}
+	logger.Success(response)
+	utils.SuccessResponse(w, http.StatusOK, response)
 }

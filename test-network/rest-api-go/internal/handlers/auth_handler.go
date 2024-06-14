@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"rest-api-go/internal/dto"
 	"rest-api-go/internal/repositories"
 	"rest-api-go/internal/services"
 	"rest-api-go/pkg/db"
+	"rest-api-go/pkg/logger"
+	"rest-api-go/pkg/utils"
 )
 
 type AuthHandler struct {
@@ -21,33 +22,28 @@ func InitAuthHandler(db db.Database) *AuthHandler {
 }
 
 func (h *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("[AUTH] Received a request")
+	logger.Info("Received a request")
 
 	var body dto.AuthRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
+		logger.Error("Failed to parse request body" + err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to parse request body")
 		return
 	}
 
-	_, authenticated, err := h.AuthService.AuthenticateUser(body.Username, body.Password)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
+	logger.Info(body)
+
+	if user, err := h.AuthService.AuthenticateUser(body.Username, body.Password); err != nil {
+		logger.Error("User not found" + err.Error())
+		utils.ErrorResponse(w, http.StatusNotFound, "User not found")
+		return
+	} else if user == nil {
+		logger.Error("Incorrect password")
+		utils.ErrorResponse(w, http.StatusUnauthorized, "Incorrect password")
 		return
 	}
 
-	if !authenticated {
-		http.Error(w, "Incorrect password", http.StatusUnauthorized)
-		return
-	}
-
-	successResponse := dto.SuccessResponse{Success: true}
-	jsonResponse, err := json.Marshal(successResponse)
-	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	response := dto.SuccessResponse{Success: true}
+	logger.Success(response)
+	utils.SuccessResponse(w, http.StatusOK, response)
 }

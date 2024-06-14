@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
+	"rest-api-go/pkg/logger"
 	"rest-api-go/pkg/org"
+	"rest-api-go/pkg/utils"
 )
 
 type QueryHandler struct {
@@ -17,36 +18,43 @@ func InitQueryHandler(orgSetup org.OrgSetup) *QueryHandler {
 }
 
 func (h *QueryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Received Query request")
+	logger.Info("Received a request")
+
 	queryParams := r.URL.Query()
 	chainCodeName := queryParams.Get("chaincodeid")
 	channelID := queryParams.Get("channelid")
 	function := queryParams.Get("function")
 	args := r.URL.Query()["args"]
-	fmt.Printf("channel: %s, chaincode: %s, function: %s, args: %s\n", channelID, chainCodeName, function, args)
+
+	logger.Info(queryParams)
+
 	network := h.OrgSetup.Gateway.GetNetwork(channelID)
 	contract := network.GetContract(chainCodeName)
-	evaluateResponse, err := contract.EvaluateTransaction(function, args...)
+	txn, err := contract.EvaluateTransaction(function, args...)
 	if err != nil {
-		fmt.Fprintf(w, "Error: %s", err)
+		logger.Error("Error evaluating transaction " + err.Error())
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Error evaluating transaction "+err.Error())
 		return
 	}
 
-	// Parse the JSON response into a GenericResponse interface
-	var genericResponse interface{}
-	err = json.Unmarshal(evaluateResponse, &genericResponse)
+	response, err := parseEvaluatedTransaction(txn)
 	if err != nil {
-		http.Error(w, "Failed to parse response JSON", http.StatusInternalServerError)
+		logger.Error("Error parsing transaction " + err.Error())
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Error parsing transaction "+err.Error())
 		return
 	}
 
-	// Marshal the GenericResponse struct back into a JSON string
-	jsonEncodedResponse, err := json.Marshal(genericResponse)
+	logger.Success(response)
+	utils.SuccessResponse(w, http.StatusOK, response)
+}
+
+// Decode base64-encoded protobuf binary data into JSON
+func parseEvaluatedTransaction(b []byte) (interface{}, error) {
+	var response interface{}
+	err := json.Unmarshal(b, &response)
 	if err != nil {
-		http.Error(w, "Failed to encode response JSON", http.StatusInternalServerError)
-		return
+		return make([]byte, 0), err
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonEncodedResponse)
+	return response, nil
 }

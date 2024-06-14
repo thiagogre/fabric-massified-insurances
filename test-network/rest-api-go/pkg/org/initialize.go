@@ -4,9 +4,9 @@ import (
 	"context"
 	"crypto/x509"
 	"fmt"
-	"log"
 	"os"
 	"path"
+	"rest-api-go/pkg/logger"
 	"time"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
@@ -32,7 +32,8 @@ type OrgSetup struct {
 
 // Initialize the orgSetup for the organization.
 func Initialize(orgSetup OrgSetup) (*OrgSetup, error) {
-	log.Printf("Initializing connection for %s...\n", orgSetup.OrgName)
+	logger.Info("Initializing connection for " + orgSetup.OrgName)
+
 	clientConnection := orgSetup.newGrpcConnection()
 	id := orgSetup.newIdentity()
 	sign := orgSetup.newSign()
@@ -56,7 +57,7 @@ func Initialize(orgSetup OrgSetup) (*OrgSetup, error) {
 	orgSetup.Context = ctx
 	orgSetup.CancelContext = cancel
 
-	log.Println("Initialization complete")
+	logger.Info("Initialization complete")
 
 	return &orgSetup, nil
 }
@@ -74,7 +75,8 @@ func (orgSetup OrgSetup) newGrpcConnection() *grpc.ClientConn {
 
 	connection, err := grpc.NewClient(orgSetup.PeerEndpoint, grpc.WithTransportCredentials(transportCredentials))
 	if err != nil {
-		panic(fmt.Errorf("failed to create gRPC connection: %w", err))
+		logger.Error("Failed to create gRPC connection " + err.Error())
+		panic(err)
 	}
 
 	return connection
@@ -99,12 +101,14 @@ func (orgSetup OrgSetup) newIdentity() *identity.X509Identity {
 func (orgSetup OrgSetup) newSign() identity.Sign {
 	files, err := os.ReadDir(orgSetup.KeyPath)
 	if err != nil {
-		panic(fmt.Errorf("failed to read private key directory: %w", err))
+		logger.Error("Failed to read private key directory " + err.Error())
+		panic(err)
 	}
 	privateKeyPEM, err := os.ReadFile(path.Join(orgSetup.KeyPath, files[0].Name()))
 
 	if err != nil {
-		panic(fmt.Errorf("failed to read private key file: %w", err))
+		logger.Error("Failed to read private key file " + err.Error())
+		panic(err)
 	}
 
 	privateKey, err := identity.PrivateKeyFromPEM(privateKeyPEM)
@@ -123,6 +127,7 @@ func (orgSetup OrgSetup) newSign() identity.Sign {
 func loadCertificate(filename string) (*x509.Certificate, error) {
 	certificatePEM, err := os.ReadFile(filename)
 	if err != nil {
+		logger.Error("Failed to read certificate file " + err.Error())
 		return nil, fmt.Errorf("failed to read certificate file: %w", err)
 	}
 	return identity.CertificateFromPEM(certificatePEM)
