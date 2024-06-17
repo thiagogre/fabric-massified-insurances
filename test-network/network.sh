@@ -431,11 +431,13 @@ function networkDown() {
   COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
   COMPOSE_COUCH_FILES="-f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
   COMPOSE_CA_FILES="-f compose/${COMPOSE_FILE_CA} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_CA}"
-  COMPOSE_FILES="${COMPOSE_BASE_FILES} ${COMPOSE_COUCH_FILES} ${COMPOSE_CA_FILES}"
+  COMPOSE_EXPLORER_FILE="-f explorer/${COMPOSE_FILE_EXPLORER}"
+  COMPOSE_FILES="${COMPOSE_BASE_FILES} ${COMPOSE_COUCH_FILES} ${COMPOSE_CA_FILES} ${COMPOSE_EXPLORER_FILE}"
 
   if [ "${CONTAINER_CLI}" == "docker" ]; then
     ${CONTAINER_CLI} stop logspout
     DOCKER_SOCK=$DOCKER_SOCK ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} down --volumes --remove-orphans
+    ${CONTAINER_CLI_COMPOSE} ${COMPOSE_EXPLORER_FILE} down -v
   elif [ "${CONTAINER_CLI}" == "podman" ]; then
     ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} down --volumes
   else
@@ -472,6 +474,8 @@ COMPOSE_FILE_BASE=compose-test-net.yaml
 COMPOSE_FILE_COUCH=compose-couch.yaml
 # certificate authorities compose file
 COMPOSE_FILE_CA=compose-ca.yaml
+# block explorer compose file
+COMPOSE_FILE_EXPLORER=docker-compose.yaml
 # use this as the default docker-compose yaml definition for org3
 COMPOSE_FILE_ORG3_BASE=compose-org3.yaml
 # use this as the docker compose couch file for org3

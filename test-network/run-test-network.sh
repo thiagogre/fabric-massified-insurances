@@ -79,3 +79,7 @@ run_command "./getEntities.sh org3"
 run_command_in_new_tab "cd rest-api-go && go run main.go" "Rest API"
 
 run_command_in_new_tab "cd frontend-react && yarn dev" "Frontend"
+
+run_command "./update-explorer-test-network.sh ./organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore ./explorer/connection-profile/test-network.json organizations.Org1MSP.adminPrivateKey.path"
+# `sudo cp -r` doesn't copy the keys
+run_command_in_new_tab "cd explorer && sudo rsync -a --ignore-errors ../organizations/ organizations/ && docker-compose up" "Explorer"
