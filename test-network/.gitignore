@@ -11,6 +11,7 @@ organizations/fabric-ca/org2/*
 organizations/fabric-ca/org3/*
 organizations/ordererOrganizations/*
 organizations/peerOrganizations/*
+explorer/organizations
 system-genesis-block/*
 *.tar.gz
 log.txt
