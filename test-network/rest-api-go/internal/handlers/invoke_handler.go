@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
 	"os"
-	"time"
 
 	"rest-api-go/internal/dto"
 	"rest-api-go/pkg/logger"
@@ -14,6 +12,10 @@ import (
 	"rest-api-go/pkg/utils"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
+)
+
+const (
+	FILENAME = "events.log"
 )
 
 type InvokeHandler struct {
@@ -72,99 +74,66 @@ func (h *InvokeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	event := &Event{network: network, chaincodeID: body.ChaincodeID, txnBlockNumber: status.BlockNumber, txnID: status.TransactionID}
+	go event.Replay()
+
 	logger.Success(status)
 	utils.SuccessResponse(w, http.StatusOK, status)
-
-	// start a new goroutine
-	go replayChaincodeEvents(h.OrgSetup.Context, network, body.ChaincodeID, status.BlockNumber)
 }
 
-// Replay events from the block containing the first transaction
-func replayChaincodeEvents(ctx context.Context, network *client.Network, chaincodeID string, startBlock uint64) {
+type Event struct {
+	network        *client.Network
+	chaincodeID    string
+	txnBlockNumber uint64
+	txnID          string
+}
+
+func (e *Event) Replay() {
 	logger.Info("*** Start chaincode event replay ***")
 
-	events, err := network.ChaincodeEvents(ctx, chaincodeID, client.WithStartBlock(0))
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	events, err := e.network.ChaincodeEvents(ctx, e.chaincodeID, client.WithStartBlock(e.txnBlockNumber))
 	if err != nil {
 		logger.Error("Failed to start chaincode event listening " + err.Error())
 		return
 	}
 
-	timeout := time.After(30 * time.Second) // Set a timeout for event replay
-	var eventsBuffer bytes.Buffer
+	for event := range events {
+		if event.TransactionID != e.txnID {
+			continue
+		}
 
-	for {
-		select {
-		case <-timeout:
-			logger.Info("*** Event replay timeout reached ***")
-
-			// Write buffer content to the file
-			if err := writeBufferToFile(&eventsBuffer, "events.log"); err != nil {
-				logger.Error("Error writing buffer to file " + err.Error())
-				return
-			}
-
-		case event, ok := <-events:
-			if !ok {
-				logger.Info("*** Event channel closed ***")
-				return
-			}
-
-			writeEventToBuffer(event, &eventsBuffer)
-
-			logger.Info(string(event.Payload))
-
-			// // Example condition to stop listening; modify as needed.
-			// if event.EventName == "DeleteAsset" {
-			// 	return
-			// }
-
-		case <-ctx.Done():
-			logger.Info("*** Context canceled, stopping event replay ***")
+		if err := e.Append(event, FILENAME); err != nil {
+			logger.Error("Error appending event to file " + err.Error())
 			return
+		} else {
+			logger.Info(string(event.Payload))
+			break
 		}
 	}
+
+	logger.Info("*** Finish chaincode event replay ***")
 }
 
-// Write the chaincode event to a buffer
-func writeEventToBuffer(event *client.ChaincodeEvent, buffer *bytes.Buffer) error {
-	// Marshal the event into JSON
-	eventBytes, err := json.Marshal(event)
+func (e *Event) Append(event *client.ChaincodeEvent, filename string) error {
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		logger.Error(err.Error())
-		return err
-	}
-
-	// Write the event bytes to the buffer
-	_, err = buffer.Write(eventBytes)
-	if err != nil {
-		logger.Error(err.Error())
-		return err
-	}
-
-	// Add a newline separator between events
-	_, err = buffer.WriteString("\n")
-	if err != nil {
-		logger.Error(err.Error())
-		return err
-	}
-
-	return nil
-}
-
-// Write the buffer content to a new file
-func writeBufferToFile(buffer *bytes.Buffer, filename string) error {
-	// Create a new file or truncate an existing file
-	file, err := os.Create(filename)
-	if err != nil {
-		logger.Error(err.Error())
+		logger.Error("Failed to open file " + err.Error())
 		return err
 	}
 	defer file.Close()
 
-	// Write the buffer content to the file
-	_, err = buffer.WriteTo(file)
+	eventBytes, err := json.Marshal(event)
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error("Failed to marshal event to JSON " + err.Error())
+		return err
+	}
+	eventBytes = append(eventBytes, '\n')
+
+	if _, err := file.Write(eventBytes); err != nil {
+		logger.Error("Failed to write event to file " + err.Error())
 		return err
 	}
 
