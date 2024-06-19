@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	FILENAME = "events.log"
+	EventLogFilename = "events.log"
 )
 
 type InvokeHandler struct {
@@ -74,7 +74,7 @@ func (h *InvokeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event := &Event{network: network, chaincodeID: body.ChaincodeID, txnBlockNumber: status.BlockNumber, txnID: status.TransactionID}
+	event := NewEvent(network, body.ChaincodeID, status.BlockNumber, status.TransactionID)
 	go event.Replay()
 
 	logger.Success(status)
@@ -86,6 +86,15 @@ type Event struct {
 	chaincodeID    string
 	txnBlockNumber uint64
 	txnID          string
+}
+
+func NewEvent(network *client.Network, chaincodeID string, txnBlockNumber uint64, txnID string) *Event {
+	return &Event{
+		network:        network,
+		chaincodeID:    chaincodeID,
+		txnBlockNumber: txnBlockNumber,
+		txnID:          txnID,
+	}
 }
 
 func (e *Event) Replay() {
@@ -105,13 +114,13 @@ func (e *Event) Replay() {
 			continue
 		}
 
-		if err := e.Append(event, FILENAME); err != nil {
+		if err := e.Append(event, EventLogFilename); err != nil {
 			logger.Error("Error appending event to file " + err.Error())
 			return
-		} else {
-			logger.Info(string(event.Payload))
-			break
 		}
+
+		logger.Info(string(event.Payload))
+		break
 	}
 
 	logger.Info("*** Finish chaincode event replay ***")
