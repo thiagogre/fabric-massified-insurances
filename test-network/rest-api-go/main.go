@@ -26,7 +26,6 @@ func main() {
 	if err != nil {
 		logger.Error("Error initializing setup for Org1: " + err.Error())
 	}
-	defer orgSetup.CancelContext()
 
 	routes.Serve(org.OrgSetup(*orgSetup))
 }

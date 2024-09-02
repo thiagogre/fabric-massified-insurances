@@ -1,7 +1,6 @@
 package org
 
 import (
-	"context"
 	"crypto/x509"
 	"fmt"
 	"os"
@@ -17,17 +16,15 @@ import (
 
 // OrgSetup contains organization's config to interact with the network.
 type OrgSetup struct {
-	OrgName       string
-	MSPID         string
-	CryptoPath    string
-	CertPath      string
-	KeyPath       string
-	TLSCertPath   string
-	PeerEndpoint  string
-	GatewayPeer   string
-	Gateway       client.Gateway
-	Context       context.Context
-	CancelContext context.CancelFunc
+	OrgName      string
+	MSPID        string
+	CryptoPath   string
+	CertPath     string
+	KeyPath      string
+	TLSCertPath  string
+	PeerEndpoint string
+	GatewayPeer  string
+	Gateway      client.Gateway
 }
 
 // Initialize the orgSetup for the organization.
@@ -51,11 +48,6 @@ func Initialize(orgSetup OrgSetup) (*OrgSetup, error) {
 		panic(err)
 	}
 	orgSetup.Gateway = *gateway
-
-	// Context used for event listening
-	ctx, cancel := context.WithCancel(context.Background())
-	orgSetup.Context = ctx
-	orgSetup.CancelContext = cancel
 
 	logger.Info("Initialization complete")
 
