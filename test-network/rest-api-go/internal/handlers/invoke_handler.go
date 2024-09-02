@@ -6,16 +6,13 @@ import (
 	"net/http"
 	"os"
 
+	"rest-api-go/constants"
 	"rest-api-go/internal/dto"
 	"rest-api-go/pkg/logger"
 	"rest-api-go/pkg/org"
 	"rest-api-go/pkg/utils"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
-)
-
-const (
-	EventLogFilename = "events.log"
 )
 
 type InvokeHandler struct {
@@ -114,7 +111,7 @@ func (e *Event) Replay() {
 			continue
 		}
 
-		if err := e.Append(event, EventLogFilename); err != nil {
+		if err := e.Append(event, constants.EventLogFilename); err != nil {
 			logger.Error("Error appending event to file " + err.Error())
 			return
 		}

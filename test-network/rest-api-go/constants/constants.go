@@ -8,4 +8,6 @@ const (
 	YellowColorOutput  = "\033[33m"
 	BlueColorOutput    = "\033[34m"
 	DefaultColorOutput = "\033[0m"
+
+	EventLogFilename = "events.log"
 )
