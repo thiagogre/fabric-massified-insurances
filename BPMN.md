@@ -1,95 +1,56 @@
-# Entendendo o Negócio do Projeto
-
--   Área de Domínio: Mercado de Seguros
--   Projeto: Sistema para promover transparência, eficiência e conformidade regulatória na operação de um Seguro Massificado.
-
-# Descrição de Processos de Negócio
-
--   Seguradora
-    -   Registro da contratação
-    -   Gestão e faturamento
-    -   Análise da solicitação de sinistro
--   Parceiros de distribuição (Corretores, Representantes e Estipulantes)
-    -   Oferta do seguro para o consumidor
-    -   Registro da contratação
--   Consumidor
-    -   Contratação do seguro através de um dos parceiros de distribuição
-    -   Acionamento do seguro
-
 # BPMN
 
-## Contratação
-
-![BPMN Contratação](assets/bpmn_contratacao.png)
-
-### Lista de Tarefas
-
-1.  Solicitar seguro através do parceiro de distribuição
-2.  Verificar possíveis coberturas de seguro
-3.  Selecionar cobertura do seguro
-4.  Registrar contratação
-5.  Faturar prêmios
-
-### Detalhe das Tarefas
+## Entendendo o Negócio do Projeto
 
 <table>
     <tr>
-        <th></th>
-        <th>Nome da tarefa</th>
-        <th>Dados de entrada</th>
-        <th>Dados de saída</th>
-        <th>Detalhamento da tarefa</th>
-    </tr>
+        <th>Área de Domínio</th>
+        <th>Projeto</th>
     <tr>
-        <td>1</td>
-        <td>Solicitar seguro através do parceiro de distribuição</td>
-        <td>-</td>
-        <td>Dados do produto</td>
-        <td>O consumidor solicita uma cobertura de seguro para seu produto e informa dados do produto</td>
-    </tr>
     <tr>
-        <td>2</td>
-        <td>Verificar possíveis coberturas de seguro</td>
-        <td>Dados do produto</td>
-        <td>Opções de cobertura disponíveis</td>
-        <td>A seguradora verifica quais coberturas de seguro são aplicáveis ao produto informado pelo consumidor</td>
-    </tr>
-    <tr>
-        <td>3</td>
-        <td>Selecionar cobertura do seguro</td>
-        <td>Opções de cobertura disponíveis</td>
-        <td>Opção de cobertura selecionada</td>
-        <td>O consumidor escolhe a cobertura de seguro que melhor se adapta às suas necessidades</td>
-    </tr>
-    <tr>
-        <td>4</td>
-        <td>Registrar contratação</td>
-        <td>Opção de cobertura selecionada</td>
-        <td>Contrato de seguro registrado</td>
-        <td>O parceiro de distribuição formaliza a contratação do seguro com base na opção de cobertura selecionada pelo consumidor</td>
-    </tr>
-    <tr>
-        <td>5</td>
-        <td>Faturar prêmios</td>
-        <td>Contrato de seguro registrado</td>
-        <td>Fatura gerada</td>
-        <td>A seguradora gera a fatura do prêmio do seguro com base no contrato registrado</td>
+        <td>Mercado de Seguros</td>
+        <td>Prova de conceito para implementação de Smart Contracts em uma plataforma de blockchain privada para seguro com cobertura contra roubo/furto</td>
     </tr>
 </table>
 
-## Acionamento
+## Descrição de Processos de Negócio
+
+### Seguradora
+
+-   Registro do contrato de seguro na blockchain
+-   Recepção das solicitações de sinistro
+-   Decisão sobre aprovação ou rejeição de sinistros
+-   Registro das decisões na blockchain
+
+### Parceiro de Distribuição
+
+-   Oferta de seguro durante o processo de venda de produto
+-   Registro da contratação do seguro na blockchain
+
+### Consumidor
+
+-   Aquisição de produto e contratação de seguro com parceiro de distribuição
+-   Acionamento do seguro em caso de sinistro
+-   Apresentação de documentação necessária (nota fiscal, boletim de ocorrência)
+
+### Avaliador de Sinistros
+
+-   Avaliação das evidências fornecidas pelo consumidor
+-   Análise da autenticidade das evidências
+
+## Modelagem
+
+### Processo de Contratação
+
+![BPMN Contratação](assets/bpmn_contratacao.png)
+
+### Processo de Acionamento
 
 ![BPMN Acionamento](assets/bpmn_acionamento.png)
 
-### Lista de Tarefas
+### Lista de Tarefas e Detalhes
 
-1.  Solicitar acionamento do seguro
-2.  Solicitar evidências do sinistro
-3.  Anexar evidências do sinistro
-4.  Analisar sinistro
-5.  Aprovar/rejeitar solicitação de sinistro
-
-### Detalhe das Tarefas
+#### Consumidor
 
 <table>
     <tr>
@@ -101,37 +62,129 @@
     </tr>
     <tr>
         <td>1</td>
-        <td>Solicitar acionamento do seguro</td>
-        <td>Dados do contrato de seguro</td>
-        <td>Solicitação de acionamento registrada</td>
-        <td>O consumidor solicita à seguradora o acionamento o seguro em caso de sinistro</td>
+        <td>Adquirir celular e oferta de seguro</td>
+        <td>-</td>
+        <td>Dados do produto e oferta de seguro</td>
+        <td>O consumidor adquire um celular e recebe a oferta de seguro durante o processo de compra</td>
     </tr>
     <tr>
         <td>2</td>
-        <td>Solicitar evidências do sinistro</td>
-        <td>Solicitação de acionamento registrada</td>
-        <td>Pedido de evidências enviado</td>
-        <td>A seguradora solicita ao consumidor as evidências necessárias para a análise do sinistro</td>
+        <td>Escolher cobertura do seguro</td>
+        <td>Oferta de seguro</td>
+        <td>Cobertura do seguro escolhida</td>
+        <td>O consumidor escolhe a cobertura de seguro que deseja adquirir, com base na oferta apresentada</td>
     </tr>
     <tr>
         <td>3</td>
-        <td>Anexar evidências do sinistro</td>
-        <td>Pedido de evidências</td>
-        <td>Evidências</td>
-        <td>O consumidor fornece as evidências do sinistro, como fotos ou documentos</td>
+        <td>Concordar com termos e condições</td>
+        <td>Oferta de seguro</td>
+        <td>Confirmação de concordância</td>
+        <td>O consumidor concorda com os termos e condições do seguro oferecido</td>
     </tr>
     <tr>
         <td>4</td>
-        <td>Analisar sinistro</td>
-        <td>Evidências</td>
-        <td>Resultado da análise</td>
-        <td>A seguradora analisa as evidências fornecidas para determinar a validade do sinistro</td>
+        <td>Acionar seguro com identidade</td>
+        <td>Identidade de contrato e seguro</td>
+        <td>Solicitação de acionamento registrada</td>
+        <td>O consumidor utiliza sua identidade para acionar o seguro através da aplicação da seguradora</td>
     </tr>
     <tr>
         <td>5</td>
-        <td>Aprovar/rejeitar solicitação de sinistro</td>
-        <td>Resultado da análise</td>
-        <td>Decisão sobre o sinistro</td>
-        <td>A seguradora aprova ou rejeita a solicitação de sinistro com base na análise das evidências</td>
+        <td>Anexar evidências</td>
+        <td>Solicitação de acionamento</td>
+        <td>Evidências de sinistro</td>
+        <td>O consumidor anexa a nota fiscal do celular e o boletim de ocorrência do furto/roubo</td>
     </tr>
+    <tr>
+        <td>6</td>
+        <td>Confirmar acionamento</td>
+        <td>Evidências de sinistro</td>
+        <td>Confirmação de acionamento</td>
+        <td>O consumidor confirma o acionamento do seguro, finalizando o envio de todas as informações e evidências necessárias</td>
+    </tr>
+</table>
+
+#### Parceiro de Distribuição
+
+<table>
+    <tr>
+        <th></th>
+        <th>Nome da tarefa</th>
+        <th>Dados de entrada</th>
+        <th>Dados de saída</th>
+        <th>Detalhamento da tarefa</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Oferecer seguro durante compra</td>
+        <td>Dados do produto</td>
+        <td>Oferta de seguro</td>
+        <td>O parceiro de distribuição oferece o seguro ao consumidor durante o processo de compra do celular</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Gerar contrato e identidade</td>
+        <td>Cobertura do seguro escolhida, confirmação de concordância</td>
+        <td>Contrato de seguro gerado, identidade criada</td>
+        <td>O parceiro de distribuição gera o contrato de seguro e cria uma identidade</td>
+    </tr> 
+</table>
+
+#### Seguradora
+
+<table>
+    <tr>
+        <th></th>
+        <th>Nome da tarefa</th>
+        <th>Dados de entrada</th>
+        <th>Dados de saída</th>
+        <th>Detalhamento da tarefa</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Receber acionamento e documentação</td>
+        <td>Solicitação de acionamento e evidências</td>
+        <td>Dados do sinistro registrados</td>
+        <td>A seguradora recebe o acionamento e a documentação do consumidor</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Aprovar ou rejeitar sinistro</td>
+        <td>Resultado da avaliação</td>
+        <td>Decisão sobre o sinistro</td>
+        <td>A seguradora toma a decisão final de aprovar ou rejeitar o sinistro baseado na avaliação do avaliador de sinistros</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>Registrar decisão</td>
+        <td>Decisão sobre o sinistro</td>
+        <td>Decisão registrada</td>
+        <td>A seguradora registra a decisão final, tornando a informação acessível a todos os participantes autorizados</td>
+    </tr>
+</table>
+
+#### Avaliador de Sinistros
+
+<table>
+    <tr>
+        <th></th>
+        <th>Nome da tarefa</th>
+        <th>Dados de entrada</th>
+        <th>Dados de saída</th>
+        <th>Detalhamento da tarefa</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Avaliar evidências de sinistro</td>
+        <td>Dados do sinistro</td>
+        <td>Resultado da avaliação</td>
+        <td>O avaliador de sinistros avalia as evidências apresentadas pelo consumidor para verificar a validade do sinistro</td>
+    </tr>
+<tr>
+    <td>2</td>
+    <td>Registrar resultado da avaliação</td>
+    <td>Resultado da avaliação</td>
+    <td>Resultado registrado</td>
+    <td>O avaliador registra o resultado da avaliação, informando a seguradora sobre a validade do sinistro</td>
+    </tr> 
 </table>
