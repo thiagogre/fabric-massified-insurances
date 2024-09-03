@@ -42,11 +42,11 @@
 
 ### Processo de Contratação
 
-![BPMN Contratação](assets/bpmn_contratacao.png)
+![BPMN Contratação](assets/bpmn_contratacao_v2.png)
 
 ### Processo de Acionamento
 
-![BPMN Acionamento](assets/bpmn_acionamento.png)
+![BPMN Acionamento](assets/bpmn_acionamento_v2.png)
 
 ### Lista de Tarefas e Detalhes
 
