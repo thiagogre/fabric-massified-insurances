@@ -13,15 +13,17 @@ type SmartContract struct {
 	contractapi.Contract
 }
 
-// Asset describes basic details of what makes up a simple asset
+// Asset describes basic details of what makes up a simple insurance policy asset
 // Insert struct field in alphabetic order => to achieve determinism across languages
 // golang keeps the order when marshal to json but doesn't order automatically
 type Asset struct {
-	AppraisedValue int    `json:"AppraisedValue"`
-	Color          string `json:"Color"`
-	ID             string `json:"ID"`
-	Owner          string `json:"Owner"`
-	Size           int    `json:"Size"`
+	ClaimStatus    string `json:"ClaimStatus"`    // Status do sinistro (Ex: "Pending", "Approved", "Rejected")
+	CoverageAmount int    `json:"CoverageAmount"` // Valor coberto pelo seguro
+	ID             string `json:"ID"`             // ID único da apólice
+	InsuredItem    string `json:"InsuredItem"`    // Descrição do item segurado (Ex: "Smartphone XYZ")
+	Owner          string `json:"Owner"`          // Nome do proprietário da apólice
+	Premium        int    `json:"Premium"`        // Valor do prêmio (custo do seguro)
+	Term           int    `json:"Term"`           // Prazo do seguro em meses
 }
 
 // HistoryQueryResult structure used for returning result of history query
@@ -37,24 +39,22 @@ type DocsResponse struct {
 	Docs []interface{} `json:"docs"`
 }
 
-// InitLedger adds a base set of assets to the ledger
+// InitLedger adds a base set of insurance policies to the ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	assets := []Asset{
-		{ID: "asset1", Color: "blue", Size: 5, Owner: "Tomoko", AppraisedValue: 300},
-		{ID: "asset2", Color: "red", Size: 5, Owner: "Brad", AppraisedValue: 400},
-		{ID: "asset3", Color: "green", Size: 10, Owner: "Jin Soo", AppraisedValue: 500},
-		{ID: "asset4", Color: "yellow", Size: 10, Owner: "Max", AppraisedValue: 600},
-		{ID: "asset5", Color: "black", Size: 15, Owner: "Adriana", AppraisedValue: 700},
-		{ID: "asset6", Color: "white", Size: 15, Owner: "Michel", AppraisedValue: 800},
+	policies := []Asset{
+		{ID: "policy1", Owner: "Alice", InsuredItem: "Smartphone ABC", CoverageAmount: 5000, Premium: 300, Term: 12, ClaimStatus: "Active"},
+		{ID: "policy2", Owner: "Bob", InsuredItem: "Smartphone DEF", CoverageAmount: 4000, Premium: 250, Term: 12, ClaimStatus: "Pending"},
+		{ID: "policy3", Owner: "Charlie", InsuredItem: "Smartphone GHI", CoverageAmount: 6000, Premium: 350, Term: 12, ClaimStatus: "Approved"},
+		{ID: "policy4", Owner: "Diana", InsuredItem: "Smartphone JKL", CoverageAmount: 4500, Premium: 275, Term: 12, ClaimStatus: "Reject"},
 	}
 
-	for _, asset := range assets {
-		assetJSON, err := json.Marshal(asset)
+	for _, policy := range policies {
+		policyBytes, err := json.Marshal(policy)
 		if err != nil {
 			return err
 		}
 
-		err = ctx.GetStub().PutState(asset.ID, assetJSON)
+		err = ctx.GetStub().PutState(policy.ID, policyBytes)
 		if err != nil {
 			return fmt.Errorf("failed to put to world state. %v", err)
 		}
@@ -63,89 +63,111 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	return nil
 }
 
-func (s *SmartContract) readState(ctx contractapi.TransactionContextInterface, id string) ([]byte, error) {
-	assetJSON, err := ctx.GetStub().GetState(id)
+func (s *SmartContract) readState(ctx contractapi.TransactionContextInterface, id string) (*Asset, error) {
+	assetBytes, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %w", err)
 	}
-	if assetJSON == nil {
-		return nil, fmt.Errorf("the asset %s does not exist", id)
-	}
-
-	return assetJSON, nil
-}
-
-// CreateAsset issues a new asset to the world state with given details.
-func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, color string, size int, owner string, appraisedValue int) error {
-	exists, err := s.readState(ctx, id)
-	if err == nil && exists != nil {
-		return fmt.Errorf("the asset %s already exists", id)
-	}
-
-	asset := Asset{
-		ID:             id,
-		Color:          color,
-		Size:           size,
-		Owner:          owner,
-		AppraisedValue: appraisedValue,
-	}
-	assetJSON, err := json.Marshal(asset)
-	if err != nil {
-		return err
-	}
-
-	ctx.GetStub().SetEvent("CreateAsset", assetJSON)
-	return ctx.GetStub().PutState(id, assetJSON)
-}
-
-// ReadAsset returns the asset stored in the world state with given id.
-func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, id string) (*Asset, error) {
-	assetJSON, err := s.readState(ctx, id)
-	if err != nil {
-		return nil, err
+	if len(assetBytes) == 0 {
+		return nil, nil
 	}
 
 	var asset Asset
-	err = json.Unmarshal(assetJSON, &asset)
+	err = json.Unmarshal(assetBytes, &asset)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal asset JSON: %w", err)
 	}
 
 	return &asset, nil
 }
 
-// UpdateAsset updates an existing asset in the world state with provided parameters.
-func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, color string, size int, owner string, appraisedValue int) error {
-	_, err := s.readState(ctx, id)
+// CreateAsset issues a new insurance policy asset to the world state with given details.
+func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, owner string, insuredItem string, coverageAmount int, premium int, term int) error {
+	exist, err := s.readState(ctx, id)
 	if err != nil {
 		return err
 	}
+	if exist != nil {
+		return fmt.Errorf("the asset %s already exist", id)
+	}
 
-	// overwriting original asset with new asset
 	asset := Asset{
 		ID:             id,
-		Color:          color,
-		Size:           size,
 		Owner:          owner,
-		AppraisedValue: appraisedValue,
+		InsuredItem:    insuredItem,
+		CoverageAmount: coverageAmount,
+		Premium:        premium,
+		Term:           term,
+		ClaimStatus:    "Active",
 	}
-	assetJSON, err := json.Marshal(asset)
+
+	assetBytes, err := json.Marshal(asset)
 	if err != nil {
 		return err
 	}
 
-	ctx.GetStub().SetEvent("UpdateAsset", assetJSON)
-	return ctx.GetStub().PutState(id, assetJSON)
+	ctx.GetStub().SetEvent("CreateAsset", assetBytes)
+	return ctx.GetStub().PutState(id, assetBytes)
+}
+
+// ReadAsset returns the asset stored in the world state with given id.
+func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, id string) (*Asset, error) {
+	exist, err := s.readState(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if exist == nil {
+		return nil, fmt.Errorf("the asset %s does not exist", id)
+	}
+
+	return exist, nil
+}
+
+// UpdateAsset updates an existing insurance policy in the world state with provided parameters.
+func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, owner string, insuredItem string, coverageAmount int, premium int, term int, claimStatus string) error {
+	exist, err := s.readState(ctx, id)
+	if err != nil {
+		return err
+	}
+	if exist == nil {
+		return fmt.Errorf("the asset %s does not exist", id)
+	}
+
+	asset := Asset{
+		ID:             id,
+		Owner:          owner,
+		InsuredItem:    insuredItem,
+		CoverageAmount: coverageAmount,
+		Premium:        premium,
+		Term:           term,
+		ClaimStatus:    claimStatus,
+	}
+
+	assetBytes, err := json.Marshal(asset)
+	if err != nil {
+		return err
+	}
+
+	ctx.GetStub().SetEvent("UpdateAsset", assetBytes)
+	return ctx.GetStub().PutState(id, assetBytes)
 }
 
 // DeleteAsset deletes an given asset from the world state.
 func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface, id string) error {
-	assetJSON, err := s.readState(ctx, id)
+	exist, err := s.readState(ctx, id)
+	if err != nil {
+		return err
+	}
+	if exist == nil {
+		return fmt.Errorf("the asset %s does not exist", id)
+	}
+
+	assetBytes, err := json.Marshal(exist)
 	if err != nil {
 		return err
 	}
 
-	ctx.GetStub().SetEvent("DeleteAsset", assetJSON)
+	ctx.GetStub().SetEvent("DeleteAsset", assetBytes)
 	return ctx.GetStub().DelState(id)
 }
 
@@ -159,12 +181,12 @@ func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterfac
 	oldOwner := asset.Owner
 	asset.Owner = newOwner
 
-	assetJSON, err := json.Marshal(asset)
+	assetBytes, err := json.Marshal(asset)
 	if err != nil {
 		return "", err
 	}
 
-	err = ctx.GetStub().PutState(id, assetJSON)
+	err = ctx.GetStub().PutState(id, assetBytes)
 	if err != nil {
 		return "", err
 	}
