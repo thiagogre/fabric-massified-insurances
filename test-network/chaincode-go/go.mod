@@ -1,4 +1,4 @@
-module github.com/thiagogre/fabric/test-network/chaincode-go
+module github.com/thiagogre/fabric-massified-insurances/test-network/chaincode-go
 
 go 1.17
 
