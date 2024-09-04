@@ -18,7 +18,15 @@ const App = () => {
 					channelid: "mychannel",
 					chaincodeid: "basic",
 					function: "CreateAsset",
-					args: [id, "red", "54", "Tom", "13005"],
+					args: [
+						id,
+						"Dono",
+						"Smartphone ABC",
+						"5000",
+						"300",
+						"12",
+						"Active",
+					],
 				});
 
 				await wait(1000);
@@ -27,7 +35,15 @@ const App = () => {
 					channelid: "mychannel",
 					chaincodeid: "basic",
 					function: "UpdateAsset",
-					args: [id, "red", "54", "X", "13005"],
+					args: [
+						id,
+						"Dono",
+						"Smartphone DEF",
+						"5000",
+						"300",
+						"12",
+						"Active",
+					],
 				});
 
 				await wait(1000);
@@ -36,7 +52,15 @@ const App = () => {
 					channelid: "mychannel",
 					chaincodeid: "basic",
 					function: "UpdateAsset",
-					args: [id, "red", "54", "Y", "13005"],
+					args: [
+						id,
+						"Dono",
+						"Smartphone GHI",
+						"5000",
+						"300",
+						"12",
+						"Active",
+					],
 				});
 
 				await wait(1000);
@@ -45,7 +69,15 @@ const App = () => {
 					channelid: "mychannel",
 					chaincodeid: "basic",
 					function: "UpdateAsset",
-					args: [id, "red", "54", "Z", "13005"],
+					args: [
+						id,
+						"Dono",
+						"Smartphone JKL",
+						"5000",
+						"300",
+						"12",
+						"Active",
+					],
 				});
 
 				await wait(1000);
