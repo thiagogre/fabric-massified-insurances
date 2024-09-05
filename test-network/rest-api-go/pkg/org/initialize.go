@@ -15,7 +15,7 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 )
 
-// OrgSetup contains organization's config to interact with the network.
+// OrgSetup contains the organization's configuration for interacting with the network.
 type OrgSetup struct {
 	OrgName      string
 	MSPID        string
@@ -28,13 +28,24 @@ type OrgSetup struct {
 	Gateway      client.Gateway
 }
 
-// Initialize the orgSetup for the organization.
+// Initialize sets up the organization configuration for interacting with the network.
 func Initialize(orgSetup OrgSetup) (*OrgSetup, error) {
 	logger.Info("Initializing connection for " + orgSetup.OrgName)
 
-	clientConnection := orgSetup.newGrpcConnection()
-	id := orgSetup.newIdentity()
-	sign := orgSetup.newSign()
+	clientConnection, err := orgSetup.newGrpcConnection()
+	if err != nil {
+		return nil, handleError(err, "Failed to create gRPC connection")
+	}
+
+	id, err := orgSetup.newIdentity()
+	if err != nil {
+		return nil, handleError(err, "Failed to create identity")
+	}
+
+	sign, err := orgSetup.newSign()
+	if err != nil {
+		return nil, handleError(err, "Failed to create sign function")
+	}
 
 	gateway, err := client.Connect(
 		id,
@@ -46,20 +57,20 @@ func Initialize(orgSetup OrgSetup) (*OrgSetup, error) {
 		client.WithCommitStatusTimeout(1*time.Minute),
 	)
 	if err != nil {
-		panic(err)
+		return nil, handleError(err, "Failed to connect to gateway")
 	}
-	orgSetup.Gateway = *gateway
 
+	orgSetup.Gateway = *gateway
 	logger.Info("Initialization complete")
 
 	return &orgSetup, nil
 }
 
 // newGrpcConnection creates a gRPC connection to the Gateway server.
-func (orgSetup OrgSetup) newGrpcConnection() *grpc.ClientConn {
+func (orgSetup OrgSetup) newGrpcConnection() (*grpc.ClientConn, error) {
 	certificate, err := loadCertificate(orgSetup.TLSCertPath)
 	if err != nil {
-		panic(err)
+		return nil, handleError(err, "Failed to load TLS certificate")
 	}
 
 	certPool := x509.NewCertPool()
@@ -68,60 +79,64 @@ func (orgSetup OrgSetup) newGrpcConnection() *grpc.ClientConn {
 
 	connection, err := grpc.NewClient(orgSetup.PeerEndpoint, grpc.WithTransportCredentials(transportCredentials))
 	if err != nil {
-		logger.Error("Failed to create gRPC connection " + err.Error())
-		panic(err)
+		return nil, handleError(err, "Failed to create gRPC connection")
 	}
 
-	return connection
+	return connection, nil
 }
 
 // newIdentity creates a client identity for this Gateway connection using an X.509 certificate.
-func (orgSetup OrgSetup) newIdentity() *identity.X509Identity {
+func (orgSetup OrgSetup) newIdentity() (*identity.X509Identity, error) {
 	certificate, err := loadCertificate(orgSetup.CertPath)
 	if err != nil {
-		panic(err)
+		return nil, handleError(err, "Failed to load certificate")
 	}
 
 	id, err := identity.NewX509Identity(orgSetup.MSPID, certificate)
 	if err != nil {
-		panic(err)
+		return nil, handleError(err, "Failed to create X509 identity")
 	}
 
-	return id
+	return id, nil
 }
 
 // newSign creates a function that generates a digital signature from a message digest using a private key.
-func (orgSetup OrgSetup) newSign() identity.Sign {
+func (orgSetup OrgSetup) newSign() (identity.Sign, error) {
 	files, err := os.ReadDir(orgSetup.KeyPath)
 	if err != nil {
-		logger.Error("Failed to read private key directory " + err.Error())
-		panic(err)
+		return nil, handleError(err, "Failed to read private key directory")
 	}
-	privateKeyPEM, err := os.ReadFile(path.Join(orgSetup.KeyPath, files[0].Name()))
 
+	privateKeyPEM, err := os.ReadFile(path.Join(orgSetup.KeyPath, files[0].Name()))
 	if err != nil {
-		logger.Error("Failed to read private key file " + err.Error())
-		panic(err)
+		return nil, handleError(err, "Failed to read private key file")
 	}
 
 	privateKey, err := identity.PrivateKeyFromPEM(privateKeyPEM)
 	if err != nil {
-		panic(err)
+		return nil, handleError(err, "Failed to parse private key")
 	}
 
 	sign, err := identity.NewPrivateKeySign(privateKey)
 	if err != nil {
-		panic(err)
+		return nil, handleError(err, "Failed to create sign function")
 	}
 
-	return sign
+	return sign, nil
 }
 
+// loadCertificate loads an X.509 certificate from a PEM file.
 func loadCertificate(filename string) (*x509.Certificate, error) {
 	certificatePEM, err := os.ReadFile(filename)
 	if err != nil {
-		logger.Error("Failed to read certificate file " + err.Error())
-		return nil, fmt.Errorf("failed to read certificate file: %w", err)
+		return nil, handleError(err, "Failed to read certificate file")
 	}
 	return identity.CertificateFromPEM(certificatePEM)
+}
+
+// handleError logs the error and returns a formatted error with context.
+func handleError(err error, context string) error {
+	errMessage := context
+	logger.Error(errMessage + ": " + err.Error())
+	return fmt.Errorf("%s: %w", errMessage, err)
 }
