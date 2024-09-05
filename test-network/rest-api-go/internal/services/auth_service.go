@@ -1,9 +1,9 @@
 package services
 
 import (
-	"rest-api-go/internal/models"
-	"rest-api-go/internal/repositories"
-	"rest-api-go/pkg/utils"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/models"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/repositories"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
 
 type AuthService struct {

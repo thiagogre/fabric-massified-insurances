@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"os/exec"
-	"rest-api-go/constants"
-	"rest-api-go/internal/dto"
-	"rest-api-go/pkg/logger"
-	"rest-api-go/pkg/utils"
+
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
 
 type IdentityHandler struct {

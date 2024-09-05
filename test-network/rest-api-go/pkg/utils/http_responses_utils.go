@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 )
 
 // ErrorResponse sends an error response with a given status code and message.

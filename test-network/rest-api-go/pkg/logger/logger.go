@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 	"path"
-	"rest-api-go/constants"
 	"runtime"
+
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 )
 
 var (

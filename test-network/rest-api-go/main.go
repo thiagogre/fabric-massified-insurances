@@ -1,10 +1,10 @@
 package main
 
 import (
-	"rest-api-go/constants"
-	"rest-api-go/internal/routes"
-	"rest-api-go/pkg/logger"
-	"rest-api-go/pkg/org"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/routes"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/org"
 )
 
 func main() {

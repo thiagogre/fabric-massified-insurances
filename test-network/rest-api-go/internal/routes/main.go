@@ -5,10 +5,10 @@ import (
 
 	"github.com/rs/cors"
 
-	"rest-api-go/constants"
-	"rest-api-go/pkg/db"
-	"rest-api-go/pkg/logger"
-	"rest-api-go/pkg/org"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/db"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/org"
 )
 
 const (

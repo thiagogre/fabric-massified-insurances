@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"rest-api-go/internal/dto"
-	"rest-api-go/internal/models"
-	"rest-api-go/pkg/logger"
-	"rest-api-go/pkg/utils"
+
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/models"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
 
 const (

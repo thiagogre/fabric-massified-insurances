@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"rest-api-go/pkg/logger"
 	"time"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 )
 
 // OrgSetup contains organization's config to interact with the network.

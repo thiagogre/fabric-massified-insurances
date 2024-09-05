@@ -1,4 +1,4 @@
-module rest-api-go
+module github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go
 
 go 1.21
 

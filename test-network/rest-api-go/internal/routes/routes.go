@@ -2,9 +2,10 @@ package routes
 
 import (
 	"net/http"
-	"rest-api-go/internal/handlers"
-	"rest-api-go/pkg/db"
-	"rest-api-go/pkg/org"
+
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/handlers"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/db"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/org"
 )
 
 func RegisterRoutes(database db.Database, orgSetup org.OrgSetup) {

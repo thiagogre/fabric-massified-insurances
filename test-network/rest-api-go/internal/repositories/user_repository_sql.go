@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"rest-api-go/internal/models"
-	"rest-api-go/pkg/db"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/models"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/db"
 )
 
 type SQLUserRepository struct {
