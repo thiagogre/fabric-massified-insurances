@@ -83,15 +83,15 @@ func (s *SmartContract) readState(ctx contractapi.TransactionContextInterface, i
 
 // CreateAsset issues a new insurance policy asset to the world state with given details.
 func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, owner string, insuredItem string, coverageAmount int, premium int, term int) error {
-	exist, err := s.readState(ctx, id)
+	asset, err := s.readState(ctx, id)
 	if err != nil {
 		return err
 	}
-	if exist != nil {
+	if asset != nil {
 		return fmt.Errorf("the asset %s already exist", id)
 	}
 
-	asset := Asset{
+	newAsset := Asset{
 		ID:             id,
 		Owner:          owner,
 		InsuredItem:    insuredItem,
@@ -101,39 +101,39 @@ func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		ClaimStatus:    "Active",
 	}
 
-	assetBytes, err := json.Marshal(asset)
+	newAssetBytes, err := json.Marshal(newAsset)
 	if err != nil {
 		return err
 	}
 
-	ctx.GetStub().SetEvent("CreateAsset", assetBytes)
-	return ctx.GetStub().PutState(id, assetBytes)
+	ctx.GetStub().SetEvent("CreateAsset", newAssetBytes)
+	return ctx.GetStub().PutState(id, newAssetBytes)
 }
 
 // ReadAsset returns the asset stored in the world state with given id.
 func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, id string) (*Asset, error) {
-	exist, err := s.readState(ctx, id)
+	asset, err := s.readState(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	if exist == nil {
+	if asset == nil {
 		return nil, fmt.Errorf("the asset %s does not exist", id)
 	}
 
-	return exist, nil
+	return asset, nil
 }
 
 // UpdateAsset updates an existing insurance policy in the world state with provided parameters.
 func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, owner string, insuredItem string, coverageAmount int, premium int, term int, claimStatus string) error {
-	exist, err := s.readState(ctx, id)
+	asset, err := s.readState(ctx, id)
 	if err != nil {
 		return err
 	}
-	if exist == nil {
+	if asset == nil {
 		return fmt.Errorf("the asset %s does not exist", id)
 	}
 
-	asset := Asset{
+	newAsset := Asset{
 		ID:             id,
 		Owner:          owner,
 		InsuredItem:    insuredItem,
@@ -143,26 +143,26 @@ func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		ClaimStatus:    claimStatus,
 	}
 
-	assetBytes, err := json.Marshal(asset)
+	newAssetBytes, err := json.Marshal(newAsset)
 	if err != nil {
 		return err
 	}
 
-	ctx.GetStub().SetEvent("UpdateAsset", assetBytes)
-	return ctx.GetStub().PutState(id, assetBytes)
+	ctx.GetStub().SetEvent("UpdateAsset", newAssetBytes)
+	return ctx.GetStub().PutState(id, newAssetBytes)
 }
 
 // DeleteAsset deletes an given asset from the world state.
 func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface, id string) error {
-	exist, err := s.readState(ctx, id)
+	asset, err := s.readState(ctx, id)
 	if err != nil {
 		return err
 	}
-	if exist == nil {
+	if asset == nil {
 		return fmt.Errorf("the asset %s does not exist", id)
 	}
 
-	assetBytes, err := json.Marshal(exist)
+	assetBytes, err := json.Marshal(asset)
 	if err != nil {
 		return err
 	}
