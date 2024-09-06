@@ -4,25 +4,21 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-)
-
-const (
-	PASSWORD        = "TestUser"
-	HASHED_PASSWORD = "$2a$10$Zlq4NHbbVu60EvboKwNY6eUUyyFy2fNldqfQCn7Cs5bnvnN10CjK6"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 )
 
 // TestCheckPasswordHash tests for different scenarios using shared setup
 func TestCheckPasswordHash(t *testing.T) {
 	t.Run("CorrectPassword", func(t *testing.T) {
-		require.True(t, CheckPasswordHash(PASSWORD, HASHED_PASSWORD))
+		require.True(t, CheckPasswordHash(constants.TestPassword, constants.TestHashedPassword))
 	})
 
 	t.Run("WrongPassword", func(t *testing.T) {
 		wrongPassword := "wrongpassword"
-		require.False(t, CheckPasswordHash(wrongPassword, HASHED_PASSWORD))
+		require.False(t, CheckPasswordHash(wrongPassword, constants.TestHashedPassword))
 	})
 
 	t.Run("EmptyPassword", func(t *testing.T) {
-		require.False(t, CheckPasswordHash("", HASHED_PASSWORD))
+		require.False(t, CheckPasswordHash("", constants.TestHashedPassword))
 	})
 }
