@@ -11,17 +11,11 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/org"
 )
 
-const (
-	dbType     = db.SQLite
-	dbPath     = constants.TestNetworkPath + "organizations/fabric-ca/org1/fabric-ca-server.db"
-	serverAddr = ":3001"
-)
-
 // Serve starts http web server.
 func Serve(orgSetup org.OrgSetup) {
 	handler := cors.Default().Handler(http.DefaultServeMux)
 
-	database, err := db.NewDatabase(dbType, dbPath)
+	database, err := db.NewDatabase(constants.DBType, constants.DBPath)
 	if err != nil {
 		logger.Error("Error opening database: " + err.Error())
 		return
@@ -30,7 +24,7 @@ func Serve(orgSetup org.OrgSetup) {
 
 	RegisterRoutes(database, orgSetup)
 
-	if err := http.ListenAndServe(serverAddr, handler); err != nil {
+	if err := http.ListenAndServe(constants.ServerAddr, handler); err != nil {
 		logger.Error(err.Error())
 	}
 

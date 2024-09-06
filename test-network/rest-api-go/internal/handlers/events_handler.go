@@ -6,14 +6,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/models"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
-)
-
-const (
-	filename = "events.log"
 )
 
 type EventHandler struct {
@@ -26,7 +23,7 @@ func InitEventHandler() *EventHandler {
 func (h *EventHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
-	file, err := os.Open(filename)
+	file, err := os.Open(constants.EventLogFilename)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to open file")
 		return
