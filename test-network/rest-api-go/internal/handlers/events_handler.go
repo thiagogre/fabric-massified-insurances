@@ -35,7 +35,6 @@ func (h *EventHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for scanner.Scan() {
 		var event models.Event
 
-		// Parse the JSON data from the line
 		if err := json.Unmarshal([]byte(scanner.Text()), &event); err != nil {
 			utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to parse file data")
 			return
