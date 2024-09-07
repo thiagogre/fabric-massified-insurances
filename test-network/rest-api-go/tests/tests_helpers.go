@@ -7,6 +7,15 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
 
+type MockCommandExecutor struct {
+	Output []byte
+	Err    error
+}
+
+func (m *MockCommandExecutor) ExecuteCommand(name string, args ...string) ([]byte, error) {
+	return m.Output, m.Err
+}
+
 func SetupLogger() {
 	// FIXME: If we don't initialize logger our tests don't run.
 	logger.Init()

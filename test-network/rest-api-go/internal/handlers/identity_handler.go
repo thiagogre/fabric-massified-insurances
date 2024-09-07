@@ -3,19 +3,19 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"os/exec"
 
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/cmd"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
 
 type IdentityHandler struct {
+	commandExecutor cmd.CommandExecutorInterface
 }
 
-func InitIdentityHandler() *IdentityHandler {
-	return &IdentityHandler{}
+func InitIdentityHandler(commandExecutor cmd.CommandExecutorInterface) *IdentityHandler {
+	return &IdentityHandler{commandExecutor: commandExecutor}
 }
 
 // Register and enroll an identity.
@@ -30,10 +30,7 @@ func (h *IdentityHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	logger.Info(body)
 
-	cmd := exec.Command("/bin/bash", "./registerEnrollIdentity.sh", body.Username)
-	cmd.Dir = constants.TestNetworkPath
-
-	output, err := cmd.CombinedOutput()
+	output, err := h.commandExecutor.ExecuteCommand("/bin/bash", "./registerEnrollIdentity.sh", body.Username)
 	if err != nil {
 		logger.Error("Error executing script: " + err.Error())
 		logger.Error("Script output: " + string(output))

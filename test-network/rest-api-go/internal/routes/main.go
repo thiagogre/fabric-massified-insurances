@@ -6,6 +6,7 @@ import (
 	"github.com/rs/cors"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/cmd"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/db"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/org"
@@ -22,7 +23,9 @@ func Serve(orgSetup org.OrgSetup) {
 	}
 	defer database.Close()
 
-	RegisterRoutes(database, orgSetup)
+	commandExecutor := &cmd.CommandExecutor{}
+
+	RegisterRoutes(database, orgSetup, commandExecutor)
 
 	if err := http.ListenAndServe(constants.ServerAddr, handler); err != nil {
 		logger.Error(err.Error())
