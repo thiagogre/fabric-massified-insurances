@@ -1,4 +1,4 @@
-package tests
+package handlers
 
 import (
 	"encoding/json"
@@ -10,16 +10,16 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/handlers"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/models"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
 func TestEventHandlerSuccess(t *testing.T) {
-	SetupLogger()
-	err := SetupTestEventLog()
+	tests.SetupLogger()
+	err := tests.SetupTestEventLog()
 	require.NoError(t, err)
 
-	eventHandler := handlers.InitEventHandler()
+	eventHandler := InitEventHandler()
 
 	t.Run("Valid request with events", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/events", nil)
@@ -37,7 +37,7 @@ func TestEventHandlerSuccess(t *testing.T) {
 	})
 
 	t.Run("Failed to open file", func(t *testing.T) {
-		CleanupTestEventLog()
+		tests.CleanupTestEventLog()
 
 		req := httptest.NewRequest(http.MethodGet, "/events", nil)
 		w := httptest.NewRecorder()

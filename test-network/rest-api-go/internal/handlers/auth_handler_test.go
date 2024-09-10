@@ -1,4 +1,4 @@
-package tests
+package handlers
 
 import (
 	"bytes"
@@ -13,15 +13,15 @@ import (
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/handlers"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
 func TestAuthHandler(t *testing.T) {
-	testDB, err := Setup()
+	testDB, err := tests.Setup()
 	require.NoError(t, err)
 	defer testDB.Close()
 
-	authHandler := handlers.InitAuthHandler(testDB)
+	authHandler := InitAuthHandler(testDB)
 
 	t.Run("ValidCredentials", func(t *testing.T) {
 		requestBody := dto.AuthRequest{Username: constants.TestUsername, Password: constants.TestPassword}

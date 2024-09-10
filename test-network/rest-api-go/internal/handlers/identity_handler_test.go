@@ -1,4 +1,4 @@
-package tests
+package handlers
 
 import (
 	"bytes"
@@ -12,18 +12,18 @@ import (
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/handlers"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
 func TestIdentityHandlerSuccess(t *testing.T) {
-	SetupLogger()
+	tests.SetupLogger()
 
-	mockCommandExecutor := &MockCommandExecutor{
+	mockCommandExecutor := &tests.MockCommandExecutor{
 		Output: []byte("mocked output"),
 		Err:    nil,
 	}
 
-	identityHandler := handlers.InitIdentityHandler(mockCommandExecutor)
+	identityHandler := InitIdentityHandler(mockCommandExecutor)
 
 	requestBody := dto.IdentityRequest{Username: constants.TestUsername}
 	body, _ := json.Marshal(requestBody)
@@ -42,14 +42,14 @@ func TestIdentityHandlerSuccess(t *testing.T) {
 }
 
 func TestIdentityHandlerErrorExecutingScript(t *testing.T) {
-	SetupLogger()
+	tests.SetupLogger()
 
-	mockCommandExecutor := &MockCommandExecutor{
+	mockCommandExecutor := &tests.MockCommandExecutor{
 		Output: []byte("mocked output"),
 		Err:    errors.New("Error executing script"),
 	}
 
-	identityHandler := handlers.InitIdentityHandler(mockCommandExecutor)
+	identityHandler := InitIdentityHandler(mockCommandExecutor)
 
 	requestBody := dto.IdentityRequest{Username: constants.TestUsername}
 	body, _ := json.Marshal(requestBody)
