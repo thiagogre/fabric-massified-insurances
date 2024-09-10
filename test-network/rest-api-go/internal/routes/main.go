@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/rs/cors"
@@ -31,5 +32,5 @@ func Serve(orgSetup org.OrgSetup) {
 		logger.Error(err.Error())
 	}
 
-	logger.Info("Listening (http://localhost:3001)")
+	logger.Info(fmt.Sprintf("Listening: (http://localhost%s)", constants.ServerAddr))
 }
