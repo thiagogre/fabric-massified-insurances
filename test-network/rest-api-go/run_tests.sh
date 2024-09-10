@@ -4,8 +4,8 @@ ARGS=$1
 
 set -e
 
-echo "Running tests..."
-go test $ARGS ./... || {
+echo "Running unit tests..."
+go test $ARGS $(go list ./... | grep -v '/tests/integration') || {
     echo "Tests failed"
     exit 1
 }
