@@ -74,8 +74,9 @@ func (h *InvokeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	event := NewEvent(network, body.ChaincodeID, status.BlockNumber, status.TransactionID)
 	go event.Replay()
 
+	response := dto.InvokeSuccessResponse{Success: true, Data: status}
 	logger.Success(status)
-	utils.SuccessResponse(w, http.StatusOK, status)
+	utils.SuccessResponse(w, http.StatusOK, response)
 }
 
 type Event struct {

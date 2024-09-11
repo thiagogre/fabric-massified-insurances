@@ -9,7 +9,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 )
 
 func TestAssetLifecycle(t *testing.T) {
@@ -18,18 +20,18 @@ func TestAssetLifecycle(t *testing.T) {
 	// Step 1: Query the Ledger (Initial State)
 	t.Run("Initial Query", func(t *testing.T) {
 		url := baseURL + "/query?channelid=mychannel&chaincodeid=basic&function=GetAllAssets"
-		client := &http.Client{}
+		httpClient := &http.Client{}
 		req, err := http.NewRequest("GET", url, nil)
 		require.NoError(t, err)
 
-		resp, err := client.Do(req)
+		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
 
 		body, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
 		defer resp.Body.Close()
 
-		expectedResponse := map[string]interface{}{"docs": []interface{}{}}
+		expectedResponse := dto.QuerySuccessResponse{Success: true, Data: map[string]interface{}{"docs": []interface{}{}}}
 		response, err := json.Marshal(expectedResponse)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -53,35 +55,36 @@ func TestAssetLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		client := &http.Client{}
-		resp, err := client.Do(req)
+		httpClient := &http.Client{}
+		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var response map[string]interface{}
+		var response dto.InvokeSuccessResponse
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		require.NoError(t, err)
-
-		require.Contains(t, response, "TransactionID")
-		require.Equal(t, true, response["Successful"])
+		require.True(t, response.Success)
+		require.NotEmpty(t, response.Data, "TransactionID")
+		require.NotEmpty(t, response.Data, "Code")
+		require.NotEmpty(t, response.Data, "BlockNumber")
 	})
 
 	// Step 3: Query All Assets
 	t.Run("Query After Create", func(t *testing.T) {
 		url := baseURL + "/query?channelid=mychannel&chaincodeid=basic&args=policy1&function=ReadAsset"
-		client := &http.Client{}
+		httpClient := &http.Client{}
 		req, err := http.NewRequest("GET", url, nil)
 		require.NoError(t, err)
 
-		resp, err := client.Do(req)
+		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
 
 		body, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
 		defer resp.Body.Close()
 
-		expectedResponse := map[string]interface{}{
+		expectedResponse := dto.QuerySuccessResponse{Success: true, Data: map[string]interface{}{
 			"ClaimStatus":    "Active",
 			"CoverageAmount": 5000,
 			"ID":             "policy1",
@@ -89,7 +92,7 @@ func TestAssetLifecycle(t *testing.T) {
 			"Owner":          "Dono",
 			"Premium":        300,
 			"Term":           12,
-		}
+		}}
 		response, err := json.Marshal(expectedResponse)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -113,35 +116,35 @@ func TestAssetLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		client := &http.Client{}
-		resp, err := client.Do(req)
+		httpClient := &http.Client{}
+		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
-
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var response map[string]interface{}
+		var response dto.InvokeSuccessResponse
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		require.NoError(t, err)
-
-		require.Contains(t, response, "TransactionID")
-		require.Equal(t, true, response["Successful"])
+		require.True(t, response.Success)
+		require.NotEmpty(t, response.Data, "TransactionID")
+		require.NotEmpty(t, response.Data, "Code")
+		require.NotEmpty(t, response.Data, "BlockNumber")
 	})
 
 	// Step 5: Query After Update
 	t.Run("Query After Update", func(t *testing.T) {
 		url := baseURL + "/query?channelid=mychannel&chaincodeid=basic&args=policy1&function=ReadAsset"
-		client := &http.Client{}
+		httpClient := &http.Client{}
 		req, err := http.NewRequest("GET", url, nil)
 		require.NoError(t, err)
 
-		resp, err := client.Do(req)
+		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
 
 		body, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
 		defer resp.Body.Close()
 
-		expectedResponse := map[string]interface{}{
+		expectedResponse := dto.QuerySuccessResponse{Success: true, Data: map[string]interface{}{
 			"ClaimStatus":    "Active",
 			"CoverageAmount": 5000,
 			"ID":             "policy1",
@@ -149,7 +152,7 @@ func TestAssetLifecycle(t *testing.T) {
 			"Owner":          "Dono",
 			"Premium":        300,
 			"Term":           12,
-		}
+		}}
 		response, err := json.Marshal(expectedResponse)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -173,28 +176,28 @@ func TestAssetLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		client := &http.Client{}
-		resp, err := client.Do(req)
+		httpClient := &http.Client{}
+		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
-
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var response map[string]interface{}
+		var response dto.InvokeSuccessResponse
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		require.NoError(t, err)
-
-		require.Contains(t, response, "TransactionID")
-		require.Equal(t, true, response["Successful"])
+		require.True(t, response.Success)
+		require.NotEmpty(t, response.Data, "TransactionID")
+		require.NotEmpty(t, response.Data, "Code")
+		require.NotEmpty(t, response.Data, "BlockNumber")
 	})
 
 	// Step 7: Query After Delete
 	t.Run("Query After Delete", func(t *testing.T) {
 		url := baseURL + "/query?channelid=mychannel&chaincodeid=basic&args=policy1&function=ReadAsset"
-		client := &http.Client{}
+		httpClient := &http.Client{}
 		req, err := http.NewRequest("GET", url, nil)
 		require.NoError(t, err)
 
-		resp, err := client.Do(req)
+		resp, err := httpClient.Do(req)
 		require.NoError(t, err)
 
 		body, err := io.ReadAll(resp.Body)
