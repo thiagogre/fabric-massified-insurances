@@ -1,5 +1,6 @@
 package dto
 
-type IdentityRequest struct {
+type IdentityResponse struct {
 	Username string `json:"username"`
+	Password string `json:"password"`
 }

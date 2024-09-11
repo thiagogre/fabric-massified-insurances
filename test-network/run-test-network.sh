@@ -52,7 +52,7 @@ create_identities() {
     local users=("BackendClient" "TestUser")
     pwd
     for user in "${users[@]}"; do
-        run_command "./registerEnrollIdentity.sh $user $org"
+        run_command "./registerEnrollIdentity.sh $user $user $org"
         display_message "SUCCESS" "Registered and enrolled: $user at $org"
     done
 }

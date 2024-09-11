@@ -8,14 +8,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
-func TestIdentityHandlerSuccess(t *testing.T) {
+func TestIdentityHandler_Successful(t *testing.T) {
 	tests.SetupLogger()
 
 	mockCommandExecutor := &tests.MockCommandExecutor{
@@ -25,23 +24,24 @@ func TestIdentityHandlerSuccess(t *testing.T) {
 
 	identityHandler := InitIdentityHandler(mockCommandExecutor)
 
-	requestBody := dto.IdentityRequest{Username: constants.TestUsername}
-	body, _ := json.Marshal(requestBody)
+	body, _ := json.Marshal("{}")
 	req := httptest.NewRequest(http.MethodPost, "/identity", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	identityHandler.ServeHTTP(w, req)
 
 	resp := w.Result()
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
 
-	var response dto.SuccessResponse
+	var response dto.SuccessResponse[dto.IdentityResponse]
 	err := json.NewDecoder(resp.Body).Decode(&response)
-	assert.NoError(t, err)
-	assert.True(t, response.Success)
+	require.NoError(t, err)
+	require.True(t, response.Success)
+	require.NotEmpty(t, response.Data, "Username")
+	require.NotEmpty(t, response.Data, "Password")
 }
 
-func TestIdentityHandlerErrorExecutingScript(t *testing.T) {
+func TestIdentityHandler_Error_Executing_Script(t *testing.T) {
 	tests.SetupLogger()
 
 	mockCommandExecutor := &tests.MockCommandExecutor{
@@ -50,19 +50,19 @@ func TestIdentityHandlerErrorExecutingScript(t *testing.T) {
 	}
 
 	identityHandler := InitIdentityHandler(mockCommandExecutor)
-
-	requestBody := dto.IdentityRequest{Username: constants.TestUsername}
-	body, _ := json.Marshal(requestBody)
+	body, _ := json.Marshal("{}")
 	req := httptest.NewRequest(http.MethodPost, "/identity", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	identityHandler.ServeHTTP(w, req)
 
 	resp := w.Result()
-	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	require.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 
-	var response dto.SuccessResponse
+	var response dto.ErrorResponse
 	err := json.NewDecoder(resp.Body).Decode(&response)
-	assert.NoError(t, err)
-	assert.False(t, response.Success)
+	require.NoError(t, err)
+	require.False(t, response.Success)
+	require.NotEmpty(t, response, "Message")
+	require.Equal(t, "Error executing script", response.Message)
 }

@@ -1,8 +1,9 @@
 #!/bin/bash
 
 USERNAME="$1"
-ORG="${2:-"org1"}"
-ABAC_ROLE="${3:-"null"}" # Attribute-based access control [insurer, claimValidator]
+PASSWORD="$2"
+ORG="${3:-"org1"}"
+ABAC_ROLE="${4:-"null"}" # Attribute-based access control [insurer, claimValidator]
 
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=$PWD/../config/
@@ -11,7 +12,7 @@ export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/${ORG}.examp
 register() {
     fabric-ca-client register \
         --id.name "${USERNAME}" \
-        --id.secret "${USERNAME}" \
+        --id.secret "${PASSWORD}" \
         --id.type client \
         --id.affiliation "${ORG}" \
         --id.attrs "abac.role=${ABAC_ROLE}:ecert" \
@@ -27,7 +28,7 @@ enroll() {
     local ca_port=${ca_ports[$ORG]}
 
     fabric-ca-client enroll \
-        -u "https://${USERNAME}:${USERNAME}@localhost:${ca_port}" \
+        -u "https://${USERNAME}:${PASSWORD}@localhost:${ca_port}" \
         --caname "ca-${ORG}" \
         -M "${PWD}/organizations/peerOrganizations/${ORG}.example.com/users/${USERNAME}@${ORG}.example.com/msp" \
         --tls.certfiles "${PWD}/organizations/fabric-ca/${ORG}/tls-cert.pem"
