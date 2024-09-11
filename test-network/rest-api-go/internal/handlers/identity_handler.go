@@ -5,6 +5,7 @@ import (
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/services"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/cmd"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
@@ -22,14 +23,14 @@ func InitIdentityHandler(commandExecutor cmd.CommandExecutorInterface) *Identity
 func (h *IdentityHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
-	randomUsername, randomPassword, err := utils.GenerateRandomCredentials(constants.DefaultUsernameLength, constants.DefaultPasswordLength)
-	if err != nil {
+	credentials := services.NewCredentials()
+	if err := credentials.Generate(constants.DefaultUsernameLength, constants.DefaultPasswordLength); err != nil {
 		logger.Error("Error generating random credentials: " + err.Error())
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Error generating random credentials")
 		return
 	}
 
-	output, err := h.commandExecutor.ExecuteCommand("/bin/bash", "./registerEnrollIdentity.sh", randomUsername, randomPassword)
+	output, err := h.commandExecutor.ExecuteCommand("/bin/bash", "./registerEnrollIdentity.sh", credentials.Username, credentials.Password)
 	if err != nil {
 		logger.Error("Error executing script: " + err.Error())
 		logger.Error("Script output: " + string(output))
@@ -39,7 +40,7 @@ func (h *IdentityHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	logger.Info("Script output: " + string(output))
 
-	response := dto.SuccessResponse[dto.IdentityResponse]{Success: true, Data: dto.IdentityResponse{Username: randomUsername, Password: randomPassword}}
+	response := dto.SuccessResponse[dto.IdentityResponse]{Success: true, Data: dto.IdentityResponse{Username: credentials.Username, Password: credentials.Password}}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }
