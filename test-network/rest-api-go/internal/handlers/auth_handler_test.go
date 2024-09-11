@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
@@ -32,12 +31,15 @@ func TestAuthHandler(t *testing.T) {
 		authHandler.ServeHTTP(w, req)
 
 		resp := w.Result()
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		require.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var response dto.SuccessResponse
+		var response dto.SuccessResponse[dto.AuthRequest]
 		err = json.NewDecoder(resp.Body).Decode(&response)
-		assert.NoError(t, err)
-		assert.True(t, response.Success)
+		require.NoError(t, err)
+		require.True(t, response.Success)
+		dataJsonAsByte, err := json.Marshal(response.Data)
+		require.NoError(t, err)
+		require.JSONEq(t, string(body), string(dataJsonAsByte))
 	})
 
 	t.Run("InvalidCredentials", func(t *testing.T) {
@@ -49,7 +51,7 @@ func TestAuthHandler(t *testing.T) {
 		authHandler.ServeHTTP(w, req)
 
 		resp := w.Result()
-		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+		require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	})
 
 	t.Run("UserNotFound", func(t *testing.T) {
@@ -61,6 +63,6 @@ func TestAuthHandler(t *testing.T) {
 		authHandler.ServeHTTP(w, req)
 
 		resp := w.Result()
-		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+		require.Equal(t, http.StatusNotFound, resp.StatusCode)
 	})
 }

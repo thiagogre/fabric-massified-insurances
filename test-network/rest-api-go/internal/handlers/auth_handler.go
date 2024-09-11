@@ -44,7 +44,7 @@ func (h *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.SuccessResponse{Success: true}
+	response := dto.SuccessResponse[dto.AuthRequest]{Success: true, Data: body}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }

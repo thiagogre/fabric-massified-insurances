@@ -4,8 +4,9 @@ type DocsResponse[T any] struct {
 	Docs []T `json:"docs"`
 }
 
-type SuccessResponse struct {
+type SuccessResponse[T any] struct {
 	Success bool `json:"success"`
+	Data    T    `json:"data"`
 }
 
 type ErrorResponse struct {
