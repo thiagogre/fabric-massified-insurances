@@ -3,10 +3,12 @@ package constants
 import "github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/db"
 
 const (
-	TestNetworkPath = "../"
-	DBType          = db.SQLite
-	DBPath          = TestNetworkPath + "organizations/fabric-ca/org1/fabric-ca-server.db"
-	ServerAddr      = ":3001"
+	TestNetworkPath       = "../"
+	DBType                = db.SQLite
+	DBPath                = TestNetworkPath + "organizations/fabric-ca/org1/fabric-ca-server.db"
+	ServerAddr            = ":3001"
+	DefaultUsernameLength = 16
+	DefaultPasswordLength = 24
 
 	RedColorOuput      = "\033[31m"
 	GreenColorOuput    = "\033[32m"
