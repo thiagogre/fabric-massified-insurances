@@ -1,9 +1,5 @@
 package dto
 
-import (
-	"github.com/hyperledger/fabric-gateway/pkg/client"
-)
-
 type InvokeRequest struct {
 	ChaincodeID string   `json:"chaincodeid"`
 	ChannelID   string   `json:"channelid"`
@@ -11,4 +7,4 @@ type InvokeRequest struct {
 	Args        []string `json:"args"`
 }
 
-type InvokeSuccessResponse = SuccessResponse[*client.Status]
+type InvokeSuccessResponse = SuccessResponse[interface{}]

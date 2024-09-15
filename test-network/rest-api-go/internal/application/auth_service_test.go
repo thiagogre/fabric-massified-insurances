@@ -1,11 +1,11 @@
-package services
+package application
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/repositories"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/adapters"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
@@ -14,7 +14,7 @@ func TestAuthenticateUser(t *testing.T) {
 	require.NoError(t, err)
 	defer testDB.Close()
 
-	userRepository := &repositories.SQLUserRepository{DB: testDB}
+	userRepository := &adapters.AuthRepository{DB: testDB}
 	authService := &AuthService{UserRepository: userRepository}
 
 	t.Run("ValidUser", func(t *testing.T) {

@@ -1,24 +1,20 @@
-package handlers
+package adapters
 
 import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/repositories"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/services"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/db"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
 
 type AuthHandler struct {
-	AuthService *services.AuthService
+	AuthService domain.AuthServiceInterface
 }
 
-func InitAuthHandler(db db.Database) *AuthHandler {
-	userRepository := &repositories.SQLUserRepository{DB: db}
-	authService := &services.AuthService{UserRepository: userRepository}
+func NewAuthHandler(authService domain.AuthServiceInterface) *AuthHandler {
 	return &AuthHandler{AuthService: authService}
 }
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/routes"
+	config "github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/config/routes"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/org"
 )
@@ -27,5 +27,5 @@ func main() {
 		logger.Error("Error initializing setup for Org1: " + err.Error())
 	}
 
-	routes.Serve(org.OrgSetup(*orgSetup))
+	config.Serve(org.OrgSetup(*orgSetup))
 }

@@ -1,4 +1,4 @@
-package repositories
+package adapters
 
 import (
 	"testing"
@@ -13,7 +13,7 @@ func TestAuthenticateUser(t *testing.T) {
 	require.NoError(t, err)
 	defer testDB.Close()
 
-	repo := SQLUserRepository{DB: testDB}
+	repo := AuthRepository{DB: testDB}
 
 	t.Run("ValidUser", func(t *testing.T) {
 		user, err := repo.GetUserById(constants.TestUsername)
