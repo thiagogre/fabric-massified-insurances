@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/models"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/db"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 )
@@ -46,10 +46,10 @@ func TestSeedTestEventLogData(t *testing.T) {
 	require.NoError(t, err)
 	defer file.Close()
 
-	var events []models.Event
+	var events []domain.Event
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		var event models.Event
+		var event domain.Event
 		err := json.Unmarshal([]byte(scanner.Text()), &event)
 		require.NoError(t, err)
 

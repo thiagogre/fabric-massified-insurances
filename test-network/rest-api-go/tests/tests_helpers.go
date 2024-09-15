@@ -5,20 +5,11 @@ import (
 	"os"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/models"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/db"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
-
-type MockCommandExecutor struct {
-	Output []byte
-	Err    error
-}
-
-func (m *MockCommandExecutor) ExecuteCommand(name string, args ...string) ([]byte, error) {
-	return m.Output, m.Err
-}
 
 func CleanupTestEventLog() {
 	os.Remove(constants.EventLogFilename)
@@ -38,7 +29,7 @@ func SetupTestEventLog() error {
 }
 
 func SeedTestEventLogData(f *os.File) error {
-	events := []models.Event{
+	events := []domain.Event{
 		{BlockNumber: 10, TransactionID: "fea0ff7b4dd6df3a90ea7ed45d5c352eb92c7041aa6d762f8563a8edc0f937f9", ChaincodeName: "basic", EventName: "DeleteAsset", Payload: "eyJDbGFpbVN0YXR1cyI6IkFjdGl2ZSIsIkNvdmVyYWdlQW1vdW50Ijo1MDAwLCJJRCI6InBvbGljeTEiLCJJbnN1cmVkSXRlbSI6IlNtYXJ0cGhvbmUgQURCIiwiT3duZXIiOiJEb25vIiwiUHJlbWl1bSI6MzAwLCJUZXJtIjoxMn0="},
 		{BlockNumber: 11, TransactionID: "aced617a5f09b372aabc3e4abf57db25d7fd4fa2956d0688bdb112927693f463", ChaincodeName: "basic", EventName: "CreateAsset", Payload: "eyJDbGFpbVN0YXR1cyI6IkFjdGl2ZSIsIkNvdmVyYWdlQW1vdW50Ijo1MDAwLCJJRCI6ImIxMmZhY2M1LTY2NzQtNDBjZC04ZDNmLWM5NmU2OGZjZGI0OSIsIkluc3VyZWRJdGVtIjoiU21hcnRwaG9uZSBBQkMiLCJPd25lciI6IkRvbm8iLCJQcmVtaXVtIjozMDAsIlRlcm0iOjEyfQ=="},
 		{BlockNumber: 11, TransactionID: "1964747d81c8c1346e71c9ebdef6856a39946122844ff6f7de77925c3cced5c2", ChaincodeName: "basic", EventName: "CreateAsset", Payload: "eyJDbGFpbVN0YXR1cyI6IkFjdGl2ZSIsIkNvdmVyYWdlQW1vdW50Ijo1MDAwLCJJRCI6ImRhM2FlZDU4LTg0MjgtNGQyNS05OTQ2LWMzOWZmNjhjMWFkNyIsIkluc3VyZWRJdGVtIjoiU21hcnRwaG9uZSBBQkMiLCJPd25lciI6IkRvbm8iLCJQcmVtaXVtIjozMDAsIlRlcm0iOjEyfQ=="},
