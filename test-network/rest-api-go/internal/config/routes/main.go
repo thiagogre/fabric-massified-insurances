@@ -29,12 +29,14 @@ func Serve(orgSetup org.OrgSetup) {
 	eventRepository := adapters.NewEventRepository()
 	userRepository := adapters.NewAuthRepository(database)
 	commandExecutor := adapters.NewCommandExecutor()
+	claimRepository := adapters.NewClaimRepository()
 
 	authHandler := adapters.NewAuthHandler(application.NewAuthService(userRepository))
 	eventHandler := adapters.NewEventHandler(application.NewEventService(blockchainGateway, eventRepository))
 	identityHandler := adapters.NewIdentityHandler(application.NewIdentityService(commandExecutor))
 	invokeHandler := adapters.NewInvokeHandler(application.NewInvokeService(blockchainGateway), application.NewEventService(blockchainGateway, eventRepository))
 	queryHandler := adapters.NewQueryHandler(application.NewQueryService(blockchainGateway))
+	claimHandler := adapters.NewClaimHandler(application.NewClaimService(claimRepository))
 
 	routes := map[string]http.Handler{
 		"/auth":     authHandler,
@@ -42,6 +44,7 @@ func Serve(orgSetup org.OrgSetup) {
 		"/identity": identityHandler,
 		"/invoke":   invokeHandler,
 		"/query":    queryHandler,
+		"/claim":    claimHandler,
 	}
 	for path, handler := range routes {
 		http.Handle(path, handler)
