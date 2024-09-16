@@ -1,7 +1,9 @@
 package tests
 
 import (
+	"bytes"
 	"encoding/json"
+	"mime/multipart"
 	"os"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
@@ -10,6 +12,14 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
+
+func CreateTestFileHeader(filename string) *multipart.FileHeader {
+	buf := new(bytes.Buffer)
+	return &multipart.FileHeader{
+		Filename: filename,
+		Size:     int64(buf.Len()),
+	}
+}
 
 func CleanupTestEventLog() {
 	os.Remove(constants.EventLogFilename)
