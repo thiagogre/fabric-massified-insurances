@@ -47,13 +47,20 @@ run_command_in_new_tab() {
 }
 
 create_identities() {
-    local org="$1"
+    local users=(
+        "BackendClient:admin:org1"
+        "ClaimAnalyst:claim_analyst:org1"
+        "Partner:partner:org2"
+        "Customer:customer:org2"
+        "EvidenceAnalyst:evidence_analyst:org3"
+    )
 
-    local users=("BackendClient" "TestUser")
     pwd
-    for user in "${users[@]}"; do
-        run_command "./registerEnrollIdentity.sh $user $user $org"
-        display_message "SUCCESS" "Registered and enrolled: $user at $org"
+    for entry in "${users[@]}"; do
+        IFS=":" read -r user role org <<<"$entry"
+
+        run_command "./registerEnrollIdentity.sh $user $user $org $role"
+        display_message "SUCCESS" "Registered and enrolled: $user (role: $role) at $org"
     done
 }
 
@@ -68,9 +75,7 @@ run_command_in_new_tab "./monitordocker.sh" "Monitor Docker"
 run_command "./network.sh deployCC -ccn basic -ccp ./chaincode-go -ccl go"
 
 display_message "INFO" "Creating identities..."
-create_identities org1
-create_identities org2
-create_identities org3
+create_identities
 
 run_command "./getEntities.sh org1"
 run_command "./getEntities.sh org2"
