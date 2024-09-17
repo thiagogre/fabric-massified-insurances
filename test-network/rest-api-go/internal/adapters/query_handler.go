@@ -17,7 +17,7 @@ func NewQueryHandler(queryService domain.QueryInterface) *QueryHandler {
 	return &QueryHandler{QueryService: queryService}
 }
 
-func (h *QueryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *QueryHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
 	queryParams := r.URL.Query()

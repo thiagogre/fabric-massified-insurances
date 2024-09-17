@@ -18,7 +18,7 @@ func NewIdentityHandler(identityService domain.IdentityInterface) *IdentityHandl
 }
 
 // Register and enroll an identity.
-func (h *IdentityHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *IdentityHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
 	credentials, err := h.IdentityService.Create()

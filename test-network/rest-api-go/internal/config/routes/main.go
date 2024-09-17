@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
@@ -14,9 +15,8 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/org"
 )
 
-// Serve starts http web server.
 func Serve(orgSetup org.OrgSetup) {
-	handler := cors.Default().Handler(http.DefaultServeMux)
+	router := mux.NewRouter()
 
 	database, err := db.NewDatabase(constants.DBType, constants.DBPath)
 	if err != nil {
@@ -38,18 +38,16 @@ func Serve(orgSetup org.OrgSetup) {
 	queryHandler := adapters.NewQueryHandler(application.NewQueryService(blockchainGateway))
 	claimHandler := adapters.NewClaimHandler(application.NewClaimService(claimRepository))
 
-	routes := map[string]http.Handler{
-		"/auth":     authHandler,
-		"/events":   eventHandler,
-		"/identity": identityHandler,
-		"/invoke":   invokeHandler,
-		"/query":    queryHandler,
-		"/claim":    claimHandler,
-	}
-	for path, handler := range routes {
-		http.Handle(path, handler)
-	}
+	router.HandleFunc("/auth", authHandler.Execute).Methods("POST")
+	router.HandleFunc("/event", eventHandler.GetAll).Methods("GET")
+	router.HandleFunc("/identity", identityHandler.Execute).Methods("POST")
+	router.HandleFunc("/invoke", invokeHandler.Execute).Methods("POST")
+	router.HandleFunc("/query", queryHandler.Execute).Methods("GET")
+	claimRoutes := router.PathPrefix("/claim").Subrouter()
+	claimRoutes.HandleFunc("/evidence/upload", claimHandler.UploadEvidences).Methods("POST")
+	// claimRoutes.HandleFunc("/evidence/{id}", claimHandler.GetEvidenceByID).Methods("GET")
 
+	handler := cors.Default().Handler(router)
 	if err := http.ListenAndServe(constants.ServerAddr, handler); err != nil {
 		logger.Error(err.Error())
 	}

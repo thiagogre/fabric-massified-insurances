@@ -15,7 +15,7 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
-func TestServeHTTP_GetEvents_Success(t *testing.T) {
+func TestGetAll_GetEvents_Success(t *testing.T) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -32,17 +32,17 @@ func TestServeHTTP_GetEvents_Success(t *testing.T) {
 		GetEventsFromStorage().
 		Return(events, nil)
 
-	req := httptest.NewRequest(http.MethodGet, "/events", nil)
+	req := httptest.NewRequest(http.MethodGet, "/event", nil)
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	handler.GetAll(rec, req)
 
 	require.Equal(t, http.StatusOK, rec.Code)
 	expected := dto.DocsResponse[domain.Event]{Docs: events}
 	utils.AssertJSONResponse(t, rec.Body.String(), expected)
 }
 
-func TestServeHTTP_GetEvents_Fail(t *testing.T) {
+func TestGetAll_GetEvents_Fail(t *testing.T) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -54,10 +54,10 @@ func TestServeHTTP_GetEvents_Fail(t *testing.T) {
 		GetEventsFromStorage().
 		Return(nil, errors.New("error retrieving events"))
 
-	req := httptest.NewRequest(http.MethodGet, "/events", nil)
+	req := httptest.NewRequest(http.MethodGet, "/event", nil)
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	handler.GetAll(rec, req)
 
 	require.Equal(t, http.StatusInternalServerError, rec.Code)
 	require.Contains(t, rec.Body.String(), "Failed to retrieve events")

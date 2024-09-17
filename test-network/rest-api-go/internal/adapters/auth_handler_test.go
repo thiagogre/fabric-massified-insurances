@@ -17,7 +17,7 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
-func TestServeHTTP_AuthenticateUser_Success(t *testing.T) {
+func TestExecute_AuthenticateUser_Success(t *testing.T) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -38,14 +38,14 @@ func TestServeHTTP_AuthenticateUser_Success(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/auth", bytes.NewBuffer(body))
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	handler.Execute(rec, req)
 
 	require.Equal(t, http.StatusOK, rec.Code)
 	expected := dto.SuccessResponse[dto.AuthRequest]{Success: true, Data: requestBody}
 	utils.AssertJSONResponse(t, rec.Body.String(), expected)
 }
 
-func TestServeHTTP_AuthenticateUser_Fail_ParseBody(t *testing.T) {
+func TestExecute_AuthenticateUser_Fail_ParseBody(t *testing.T) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -56,13 +56,13 @@ func TestServeHTTP_AuthenticateUser_Fail_ParseBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/auth", bytes.NewBuffer([]byte("invalid json")))
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	handler.Execute(rec, req)
 
 	require.Equal(t, http.StatusBadRequest, rec.Code)
 	require.Contains(t, rec.Body.String(), "Failed to parse request body")
 }
 
-func TestServeHTTP_AuthenticateUser_Fail_UserNotFound(t *testing.T) {
+func TestExecute_AuthenticateUser_Fail_UserNotFound(t *testing.T) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -83,13 +83,13 @@ func TestServeHTTP_AuthenticateUser_Fail_UserNotFound(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/auth", bytes.NewBuffer(body))
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	handler.Execute(rec, req)
 
 	require.Equal(t, http.StatusNotFound, rec.Code)
 	require.Contains(t, rec.Body.String(), "User not found")
 }
 
-func TestServeHTTP_AuthenticateUser_Fail_IncorrectPassword(t *testing.T) {
+func TestExecute_AuthenticateUser_Fail_IncorrectPassword(t *testing.T) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -110,7 +110,7 @@ func TestServeHTTP_AuthenticateUser_Fail_IncorrectPassword(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/auth", bytes.NewBuffer(body))
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	handler.Execute(rec, req)
 
 	require.Equal(t, http.StatusUnauthorized, rec.Code)
 	require.Contains(t, rec.Body.String(), "Incorrect password")

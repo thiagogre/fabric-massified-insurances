@@ -20,7 +20,7 @@ func NewClaimHandler(claimService domain.ClaimServiceInterface) *ClaimHandler {
 	return &ClaimHandler{ClaimService: claimService}
 }
 
-func (h *ClaimHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *ClaimHandler) UploadEvidences(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
 	err := r.ParseMultipartForm(constants.MaxFileSize)
@@ -30,7 +30,7 @@ func (h *ClaimHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := r.MultipartForm.File["file"]
+	files := r.MultipartForm.File["files"]
 	if len(files) == 0 {
 		logger.Error("No files uploaded")
 		utils.ErrorResponse(w, http.StatusBadRequest, "No files uploaded")
@@ -75,5 +75,4 @@ func (h *ClaimHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	response := dto.SuccessResponse[string]{Success: true, Data: "All files uploaded successfully"}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
-
 }

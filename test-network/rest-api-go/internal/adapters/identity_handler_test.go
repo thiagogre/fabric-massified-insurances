@@ -15,7 +15,7 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
-func TestServeHTTP_Create_Success(t *testing.T) {
+func TestExecute_Create_Success(t *testing.T) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -32,14 +32,14 @@ func TestServeHTTP_Create_Success(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/identity", nil)
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	handler.Execute(rec, req)
 
 	require.Equal(t, http.StatusOK, rec.Code)
 	expected := dto.SuccessResponse[dto.IdentityResponse]{Success: true, Data: dto.IdentityResponse{Username: credentials.Username, Password: credentials.Password}}
 	utils.AssertJSONResponse(t, rec.Body.String(), expected)
 }
 
-func TestServeHTTP_Create_Fail(t *testing.T) {
+func TestExecute_Create_Fail(t *testing.T) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -54,7 +54,7 @@ func TestServeHTTP_Create_Fail(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/identity", nil)
 	rec := httptest.NewRecorder()
 
-	handler.ServeHTTP(rec, req)
+	handler.Execute(rec, req)
 
 	require.Equal(t, http.StatusInternalServerError, rec.Code)
 	require.Contains(t, rec.Body.String(), "Error creating new random credentials")

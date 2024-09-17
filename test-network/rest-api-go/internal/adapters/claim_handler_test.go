@@ -20,24 +20,25 @@ func TestClaimHandler_UploadClaim(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	target := "/claim/evidence/upload"
 	mockClaimService := mocks.NewMockClaimServiceInterface(ctrl)
 	claimHandler := NewClaimHandler(mockClaimService)
 
 	t.Run("successful upload", func(t *testing.T) {
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
-		part, err := writer.CreateFormFile("file", "test.pdf")
+		part, err := writer.CreateFormFile("files", "test.pdf")
 		require.NoError(t, err)
 		part.Write([]byte("fake pdf content"))
 		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPost, "/upload", body)
+		req := httptest.NewRequest(http.MethodPost, target, body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		rec := httptest.NewRecorder()
 
 		mockClaimService.EXPECT().StoreClaim(gomock.Any()).Return(nil)
 
-		claimHandler.ServeHTTP(rec, req)
+		claimHandler.UploadEvidences(rec, req)
 
 		require.Equal(t, http.StatusOK, rec.Code)
 		require.Contains(t, rec.Body.String(), "All files uploaded successfully")
@@ -46,16 +47,16 @@ func TestClaimHandler_UploadClaim(t *testing.T) {
 	t.Run("file too large", func(t *testing.T) {
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
-		part, err := writer.CreateFormFile("file", "large_file.pdf")
+		part, err := writer.CreateFormFile("files", "large_file.pdf")
 		require.NoError(t, err)
 		part.Write(make([]byte, constants.MaxFileSize+1))
 		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPost, "/upload", body)
+		req := httptest.NewRequest(http.MethodPost, target, body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		rec := httptest.NewRecorder()
 
-		claimHandler.ServeHTTP(rec, req)
+		claimHandler.UploadEvidences(rec, req)
 
 		require.Equal(t, http.StatusBadRequest, rec.Code)
 		require.Contains(t, rec.Body.String(), "File too large")
@@ -64,16 +65,16 @@ func TestClaimHandler_UploadClaim(t *testing.T) {
 	t.Run("invalid file type", func(t *testing.T) {
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
-		part, err := writer.CreateFormFile("file", "test.txt")
+		part, err := writer.CreateFormFile("files", "test.txt")
 		require.NoError(t, err)
 		part.Write([]byte("fake txt content"))
 		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPost, "/upload", body)
+		req := httptest.NewRequest(http.MethodPost, target, body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		rec := httptest.NewRecorder()
 
-		claimHandler.ServeHTTP(rec, req)
+		claimHandler.UploadEvidences(rec, req)
 
 		require.Equal(t, http.StatusBadRequest, rec.Code)
 		require.Contains(t, rec.Body.String(), "Invalid file type")
@@ -82,17 +83,17 @@ func TestClaimHandler_UploadClaim(t *testing.T) {
 	t.Run("error opening file", func(t *testing.T) {
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
-		_, err := writer.CreateFormFile("file", "test.pdf")
+		_, err := writer.CreateFormFile("files", "test.pdf")
 		require.NoError(t, err)
 		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPost, "/upload", body)
+		req := httptest.NewRequest(http.MethodPost, target, body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		rec := httptest.NewRecorder()
 
 		mockClaimService.EXPECT().StoreClaim(gomock.Any()).Return(errors.New("error opening file"))
 
-		claimHandler.ServeHTTP(rec, req)
+		claimHandler.UploadEvidences(rec, req)
 
 		require.Equal(t, http.StatusBadRequest, rec.Code)
 		require.Contains(t, rec.Body.String(), "error opening file")
@@ -101,18 +102,18 @@ func TestClaimHandler_UploadClaim(t *testing.T) {
 	t.Run("error saving file", func(t *testing.T) {
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
-		part, err := writer.CreateFormFile("file", "test.pdf")
+		part, err := writer.CreateFormFile("files", "test.pdf")
 		require.NoError(t, err)
 		part.Write([]byte("fake pdf content"))
 		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPost, "/upload", body)
+		req := httptest.NewRequest(http.MethodPost, target, body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 		rec := httptest.NewRecorder()
 
 		mockClaimService.EXPECT().StoreClaim(gomock.Any()).Return(errors.New("unable to save file"))
 
-		claimHandler.ServeHTTP(rec, req)
+		claimHandler.UploadEvidences(rec, req)
 
 		require.Equal(t, http.StatusBadRequest, rec.Code)
 		require.Contains(t, rec.Body.String(), "Unable to save file")

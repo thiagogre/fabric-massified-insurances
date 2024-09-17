@@ -17,7 +17,7 @@ func NewEventHandler(eventService domain.EventInterface) *EventHandler {
 	return &EventHandler{EventService: eventService}
 }
 
-func (h *EventHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *EventHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
 	events, err := h.EventService.GetEventsFromStorage()

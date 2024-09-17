@@ -21,7 +21,7 @@ func NewInvokeHandler(invokeService domain.InvokeInterface, eventService domain.
 	return &InvokeHandler{InvokeService: invokeService, EventService: eventService}
 }
 
-func (h *InvokeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *InvokeHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
 	var body dto.InvokeRequest

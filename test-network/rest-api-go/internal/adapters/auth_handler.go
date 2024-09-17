@@ -18,7 +18,7 @@ func NewAuthHandler(authService domain.AuthServiceInterface) *AuthHandler {
 	return &AuthHandler{AuthService: authService}
 }
 
-func (h *AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
 	var body dto.AuthRequest
