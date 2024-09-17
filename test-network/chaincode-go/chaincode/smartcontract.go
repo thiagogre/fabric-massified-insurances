@@ -39,6 +39,30 @@ type DocsResponse struct {
 	Docs []interface{} `json:"docs"`
 }
 
+// InitLedger adds a base set of insurance policies to the ledger
+func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+	policies := []Asset{
+		{ID: "policy1", Owner: "Alice", InsuredItem: "Smartphone ABC", CoverageAmount: 5000, Premium: 300, Term: 12, ClaimStatus: "Active"},
+		{ID: "policy2", Owner: "Bob", InsuredItem: "Smartphone DEF", CoverageAmount: 4000, Premium: 250, Term: 12, ClaimStatus: "Pending"},
+		{ID: "policy3", Owner: "Charlie", InsuredItem: "Smartphone GHI", CoverageAmount: 6000, Premium: 350, Term: 12, ClaimStatus: "Approved"},
+		{ID: "policy4", Owner: "Diana", InsuredItem: "Smartphone JKL", CoverageAmount: 4500, Premium: 275, Term: 12, ClaimStatus: "Reject"},
+	}
+
+	for _, policy := range policies {
+		policyBytes, err := json.Marshal(policy)
+		if err != nil {
+			return err
+		}
+
+		err = ctx.GetStub().PutState(policy.ID, policyBytes)
+		if err != nil {
+			return fmt.Errorf("failed to put to world state. %v", err)
+		}
+	}
+
+	return nil
+}
+
 func (s *SmartContract) readState(ctx contractapi.TransactionContextInterface, id string) (*Asset, error) {
 	assetBytes, err := ctx.GetStub().GetState(id)
 	if err != nil {
@@ -145,6 +169,29 @@ func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 
 	ctx.GetStub().SetEvent("DeleteAsset", assetBytes)
 	return ctx.GetStub().DelState(id)
+}
+
+// TransferAsset updates the owner field of asset with given id in world state, and returns the old owner.
+func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterface, id string, newOwner string) (string, error) {
+	asset, err := s.ReadAsset(ctx, id)
+	if err != nil {
+		return "", err
+	}
+
+	oldOwner := asset.Owner
+	asset.Owner = newOwner
+
+	assetBytes, err := json.Marshal(asset)
+	if err != nil {
+		return "", err
+	}
+
+	err = ctx.GetStub().PutState(id, assetBytes)
+	if err != nil {
+		return "", err
+	}
+
+	return oldOwner, nil
 }
 
 // GetAllAssets returns all assets found in world state
