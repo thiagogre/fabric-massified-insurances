@@ -1,12 +1,15 @@
 package chaincode
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
+
+// ABAC (claim_analyst, partner, evidence_analyst)
 
 // SmartContract provides functions for managing an Asset
 type SmartContract struct {
@@ -83,6 +86,10 @@ func (s *SmartContract) readState(ctx contractapi.TransactionContextInterface, i
 
 // CreateAsset issues a new insurance policy asset to the world state with given details.
 func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, owner string, insuredItem string, coverageAmount int, premium int, term int) error {
+	// if err := validateABAC(ctx, []string{"abac.partner"}); err != nil {
+	// 	return err
+	// }
+
 	asset, err := s.readState(ctx, id)
 	if err != nil {
 		return err
@@ -90,6 +97,11 @@ func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	if asset != nil {
 		return fmt.Errorf("the asset %s already exist", id)
 	}
+
+	// clientID, err := s.getSubmittingClientIdentity(ctx)
+	// if err != nil {
+	// 	return err
+	// }
 
 	newAsset := Asset{
 		ID:             id,
@@ -125,6 +137,10 @@ func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, i
 
 // UpdateAsset updates an existing insurance policy in the world state with provided parameters.
 func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, owner string, insuredItem string, coverageAmount int, premium int, term int, claimStatus string) error {
+	// if err := validateABAC(ctx, []string{"abac.evidence_analyst"}); err != nil {
+	// 	return err
+	// }
+
 	asset, err := s.readState(ctx, id)
 	if err != nil {
 		return err
@@ -303,4 +319,40 @@ func (s *SmartContract) GetAssetsByRichQuery(ctx contractapi.TransactionContextI
 	}
 
 	return &docsResponse, nil
+}
+
+// GetSubmittingClientIdentity returns the name and issuer of the identity that
+// invokes the smart contract. This function base64 decodes the identity string
+// before returning the value to the client or smart contract.
+func (s *SmartContract) getSubmittingClientIdentity(ctx contractapi.TransactionContextInterface) (string, error) {
+	b64ID, err := ctx.GetClientIdentity().GetID()
+	if err != nil {
+		return "", fmt.Errorf("failed to read clientID: %v", err)
+	}
+
+	decodeID, err := base64.StdEncoding.DecodeString(b64ID)
+	if err != nil {
+		return "", fmt.Errorf("failed to base64 decode clientID: %v", err)
+	}
+
+	return string(decodeID), nil
+}
+
+// validateABAC checks whether the client identity has at least one of the
+// required roles to perform an action.
+func validateABAC(ctx contractapi.TransactionContextInterface, roles []string) error {
+	authorized := false
+	for _, role := range roles {
+		err := ctx.GetClientIdentity().AssertAttributeValue(role, "true")
+		if err == nil {
+			authorized = true
+			break
+		}
+	}
+
+	if !authorized {
+		return fmt.Errorf("submitting client not authorized to perform this action, does not have the required role %v", roles)
+	}
+
+	return nil
 }

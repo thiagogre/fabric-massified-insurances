@@ -1,7 +1,7 @@
 [
 	{
 		"query": "ReadAsset",
-		"args": ["asset1"]
+		"args": ["policy2"]
 	},
 	{
 		"query": "GetAllAssets",
@@ -9,18 +9,18 @@
 	},
 	{
 		"invoke": "CreateAsset",
-		"args": ["asset1", "blue", "71", "Tom", "220"]
+		"args": ["policy3", "Alice", "Smartphone ABC",5000, 300, 12]
 	},
 	{
 		"invoke": "UpdateAsset",
-		"args": ["asset1", "yellow", "71", "Tom", "220"]
+		"args": ["policy1", "Alice", "Smartphone ABC",5000, 300, 12,"Active"]
 	},
 	{
 		"invoke": "GetAssetHistory",
-		"args": ["asset1"]
+		"args": ["policy1"]
 	},
 	{
 		"invoke": "GetAssetTransactionsHistory",
-		"args": ["asset1"]
+		"args": ["policy1"]
 	}
 ]
