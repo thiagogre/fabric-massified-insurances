@@ -46,7 +46,7 @@ func TestAssetLifecycle(t *testing.T) {
 			"channelid":   "mychannel",
 			"chaincodeid": "basic",
 			"function":    "createAsset",
-			"args":        []string{"policy1", "Dono", "Smartphone ABC", "5000", "300", "12"},
+			"args":        []string{"policy1", "Dono", "12", "5000", "0", "Varejista", "300"},
 		}
 
 		jsonData, err := json.Marshal(assetData)
@@ -86,13 +86,15 @@ func TestAssetLifecycle(t *testing.T) {
 		defer resp.Body.Close()
 
 		expectedResponse := dto.QuerySuccessResponse{Success: true, Data: map[string]interface{}{
-			"ClaimStatus":    "Active",
-			"CoverageAmount": 5000,
-			"ID":             "policy1",
-			"InsuredItem":    "Smartphone ABC",
-			"Owner":          "Dono",
-			"Premium":        300,
-			"Term":           12,
+			"ClaimStatus":      "Active",
+			"CoverageDuration": 12,
+			"CoverageType":     0,
+			"CoverageValue":    5000,
+			"Evidences":        "",
+			"ID":               "policy1",
+			"Insured":          "Dono",
+			"Partner":          "Varejista",
+			"Premium":          300,
 		}}
 		response, err := json.Marshal(expectedResponse)
 		require.NoError(t, err)
@@ -107,7 +109,7 @@ func TestAssetLifecycle(t *testing.T) {
 			"channelid":   "mychannel",
 			"chaincodeid": "basic",
 			"function":    "updateAsset",
-			"args":        []string{"policy1", "Dono", "Smartphone ABC", "5000", "300", "12", "Pending"},
+			"args":        []string{"policy1", "Dono", "12", "5000", "0", "Varejista", "300", "Pending", ""},
 		}
 
 		jsonData, err := json.Marshal(assetData)
@@ -146,13 +148,15 @@ func TestAssetLifecycle(t *testing.T) {
 		defer resp.Body.Close()
 
 		expectedResponse := dto.QuerySuccessResponse{Success: true, Data: map[string]interface{}{
-			"ClaimStatus":    "Pending",
-			"CoverageAmount": 5000,
-			"ID":             "policy1",
-			"InsuredItem":    "Smartphone ABC",
-			"Owner":          "Dono",
-			"Premium":        300,
-			"Term":           12,
+			"ClaimStatus":      "Pending",
+			"CoverageDuration": 12,
+			"CoverageType":     0,
+			"CoverageValue":    5000,
+			"Evidences":        "",
+			"ID":               "policy1",
+			"Insured":          "Dono",
+			"Partner":          "Varejista",
+			"Premium":          300,
 		}}
 		response, err := json.Marshal(expectedResponse)
 		require.NoError(t, err)
@@ -222,7 +226,7 @@ func TestAssetRichQuery(t *testing.T) {
 			"channelid":   "mychannel",
 			"chaincodeid": "basic",
 			"function":    "createAsset",
-			"args":        []string{assetID, "Dono", "Smartphone ABC", "5000", "300", "12"},
+			"args":        []string{assetID, "Dono", "12", "5000", "0", "Varejista", "300"},
 		}
 		assets = append(assets, asset)
 	}
@@ -257,7 +261,7 @@ func TestAssetRichQuery(t *testing.T) {
 			"channelid":   "mychannel",
 			"chaincodeid": "basic",
 			"function":    "updateAsset",
-			"args":        []string{"policy_1", "Dono", "Smartphone ABC", "5000", "300", "12", "Pending"},
+			"args":        []string{"policy_1", "Dono", "12", "5000", "0", "Varejista", "300", "Pending", ""},
 		}
 
 		jsonData, err := json.Marshal(assetData)
