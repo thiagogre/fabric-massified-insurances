@@ -20,13 +20,15 @@ type SmartContract struct {
 // Insert struct field in alphabetic order => to achieve determinism across languages
 // golang keeps the order when marshal to json but doesn't order automatically
 type Asset struct {
-	ClaimStatus    string `json:"ClaimStatus"`    // Status do sinistro (Ex: "Pending", "Approved", "Rejected")
-	CoverageAmount int    `json:"CoverageAmount"` // Valor coberto pelo seguro
-	ID             string `json:"ID"`             // ID único da apólice
-	InsuredItem    string `json:"InsuredItem"`    // Descrição do item segurado (Ex: "Smartphone XYZ")
-	Owner          string `json:"Owner"`          // Nome do proprietário da apólice
-	Premium        int    `json:"Premium"`        // Valor do prêmio (custo do seguro)
-	Term           int    `json:"Term"`           // Prazo do seguro em meses
+	ClaimStatus      string `json:"ClaimStatus"`      // Status do sinistro (Ex: "Pending", "Approved", "Rejected")
+	CoverageDuration int    `json:"CoverageDuration"` // Prazo do seguro em meses
+	CoverageType     int    `json:"CoverageType"`     // 0 = Cobertura contra roubo/furto de celular
+	CoverageValue    int    `json:"CoverageValue"`    // Valor coberto pelo seguro
+	Evidences        string `json:"Evidences"`        // Evidências
+	ID               string `json:"ID"`               // ID único da apólice
+	Insured          string `json:"Insured"`          // Proprietário da apólice
+	Partner          string `json:"Partner"`          // Parceiro de distribuição
+	Premium          int    `json:"Premium"`          // Valor do prêmio (custo do seguro)
 }
 
 // HistoryQueryResult structure used for returning result of history query
@@ -45,10 +47,10 @@ type DocsResponse struct {
 // InitLedger adds a base set of insurance policies to the ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	policies := []Asset{
-		{ID: "policy1", Owner: "Alice", InsuredItem: "Smartphone ABC", CoverageAmount: 5000, Premium: 300, Term: 12, ClaimStatus: "Active"},
-		{ID: "policy2", Owner: "Bob", InsuredItem: "Smartphone DEF", CoverageAmount: 4000, Premium: 250, Term: 12, ClaimStatus: "Pending"},
-		{ID: "policy3", Owner: "Charlie", InsuredItem: "Smartphone GHI", CoverageAmount: 6000, Premium: 350, Term: 12, ClaimStatus: "Approved"},
-		{ID: "policy4", Owner: "Diana", InsuredItem: "Smartphone JKL", CoverageAmount: 4500, Premium: 275, Term: 12, ClaimStatus: "Reject"},
+		{ID: "policy1", Insured: "Alice", Evidences: "", CoverageDuration: 12, CoverageType: 0, CoverageValue: 5000, Premium: 300, Partner: "Parceiro varejista", ClaimStatus: "Active"},
+		{ID: "policy2", Insured: "Bob", Evidences: "", CoverageDuration: 12, CoverageType: 0, CoverageValue: 4000, Premium: 250, Partner: "Parceiro varejista", ClaimStatus: "Pending"},
+		{ID: "policy3", Insured: "Charlie", Evidences: "", CoverageDuration: 12, CoverageType: 0, CoverageValue: 6000, Premium: 350, Partner: "Parceiro varejista", ClaimStatus: "Approved"},
+		{ID: "policy4", Insured: "Diana", Evidences: "", CoverageDuration: 12, CoverageType: 0, CoverageValue: 4500, Premium: 275, Partner: "Parceiro varejista", ClaimStatus: "Reject"},
 	}
 
 	for _, policy := range policies {
@@ -85,7 +87,7 @@ func (s *SmartContract) readState(ctx contractapi.TransactionContextInterface, i
 }
 
 // CreateAsset issues a new insurance policy asset to the world state with given details.
-func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, owner string, insuredItem string, coverageAmount int, premium int, term int) error {
+func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, insured string, coverageDuration int, converageValue int, coverageType int, partner string, premium int) error {
 	// if err := validateABAC(ctx, []string{"abac.partner"}); err != nil {
 	// 	return err
 	// }
@@ -104,13 +106,15 @@ func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 	// }
 
 	newAsset := Asset{
-		ID:             id,
-		Owner:          owner,
-		InsuredItem:    insuredItem,
-		CoverageAmount: coverageAmount,
-		Premium:        premium,
-		Term:           term,
-		ClaimStatus:    "Active",
+		ID:               id,
+		Insured:          insured,
+		Partner:          partner,
+		CoverageDuration: coverageDuration,
+		CoverageType:     coverageType,
+		CoverageValue:    converageValue,
+		Evidences:        "",
+		Premium:          premium,
+		ClaimStatus:      "Active",
 	}
 
 	newAssetBytes, err := json.Marshal(newAsset)
@@ -136,7 +140,7 @@ func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, i
 }
 
 // UpdateAsset updates an existing insurance policy in the world state with provided parameters.
-func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, owner string, insuredItem string, coverageAmount int, premium int, term int, claimStatus string) error {
+func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, insured string, coverageDuration int, converageValue int, coverageType int, partner string, premium int, claimStatus string, evidences string) error {
 	// if err := validateABAC(ctx, []string{"abac.evidence_analyst"}); err != nil {
 	// 	return err
 	// }
@@ -150,13 +154,15 @@ func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 	}
 
 	newAsset := Asset{
-		ID:             id,
-		Owner:          owner,
-		InsuredItem:    insuredItem,
-		CoverageAmount: coverageAmount,
-		Premium:        premium,
-		Term:           term,
-		ClaimStatus:    claimStatus,
+		ID:               id,
+		Insured:          insured,
+		Partner:          partner,
+		CoverageDuration: coverageDuration,
+		CoverageType:     coverageType,
+		CoverageValue:    converageValue,
+		Evidences:        evidences,
+		Premium:          premium,
+		ClaimStatus:      claimStatus,
 	}
 
 	newAssetBytes, err := json.Marshal(newAsset)
@@ -187,15 +193,15 @@ func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 	return ctx.GetStub().DelState(id)
 }
 
-// TransferAsset updates the owner field of asset with given id in world state, and returns the old owner.
-func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterface, id string, newOwner string) (string, error) {
+// TransferAsset updates the insured field of asset with given id in world state, and returns the old insured.
+func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterface, id string, newInsured string) (string, error) {
 	asset, err := s.ReadAsset(ctx, id)
 	if err != nil {
 		return "", err
 	}
 
-	oldOwner := asset.Owner
-	asset.Owner = newOwner
+	oldInsured := asset.Insured
+	asset.Insured = newInsured
 
 	assetBytes, err := json.Marshal(asset)
 	if err != nil {
@@ -207,7 +213,7 @@ func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterfac
 		return "", err
 	}
 
-	return oldOwner, nil
+	return oldInsured, nil
 }
 
 // GetAllAssets returns all assets found in world state
