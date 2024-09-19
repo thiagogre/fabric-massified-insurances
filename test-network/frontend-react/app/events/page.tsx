@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import Event from "../../components/event/Event";
 import { EventProps } from "../../components/event/types";
+import { fetchAPI } from "../../config/api";
 
 const App = () => {
 	const [events, setEvents] = useState<Record<number, EventProps[]>>({});
@@ -21,8 +22,11 @@ const App = () => {
 
 		const getEvents = async () => {
 			try {
-				const res = await fetch("http://localhost:3001/events");
-				const docs: EventProps[] | [] = (await res.json())?.docs ?? [];
+				const response = await fetchAPI({
+					method: "GET",
+					endpoint: "/event",
+				});
+				const docs: EventProps[] | [] = response?.docs ?? [];
 				setEvents(groupedEvents(docs));
 			} catch (error) {
 				console.error("Error fetching events: ", error);
