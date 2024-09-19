@@ -7,7 +7,9 @@ const Input = ({
 	placeholder,
 	value,
 	disabled = false,
+	required = false,
 	onChange,
+	name = undefined,
 }: InputProps) => {
 	return (
 		<input
@@ -15,7 +17,9 @@ const Input = ({
 			placeholder={placeholder}
 			value={value}
 			disabled={disabled}
+			required={required}
 			onChange={onChange}
+			name={name}
 			className="border border-gray-300 p-2 rounded w-full"
 		/>
 	);
