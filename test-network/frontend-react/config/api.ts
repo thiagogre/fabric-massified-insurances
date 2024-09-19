@@ -2,7 +2,7 @@ const API_BASE_URL = "http://localhost:3001";
 
 const query = async (params: Record<string, any>): Promise<any> => {
 	const queryString = new URLSearchParams(params).toString();
-	const url = `${API_BASE_URL}/query?${queryString}`;
+	const url = `${API_BASE_URL}/smartcontract/query?${queryString}`;
 
 	const response = await fetch(url);
 	if (!response.ok) {
@@ -15,7 +15,7 @@ const query = async (params: Record<string, any>): Promise<any> => {
 };
 
 const invoke = async (body: Record<string, any>): Promise<any> => {
-	const url = `${API_BASE_URL}/invoke`;
+	const url = `${API_BASE_URL}/smartcontract/invoke`;
 
 	const response = await fetch(url, {
 		method: "POST",
