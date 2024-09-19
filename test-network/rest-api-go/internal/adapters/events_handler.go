@@ -27,7 +27,8 @@ func (h *EventHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.DocsResponse[domain.Event]{Docs: events}
+	response := dto.QuerySuccessResponse{Success: true, Data: dto.DocsResponse[domain.Event]{Docs: events}}
+
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }

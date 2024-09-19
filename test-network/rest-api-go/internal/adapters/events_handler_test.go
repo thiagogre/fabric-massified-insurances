@@ -38,7 +38,7 @@ func TestGetAll_GetEvents_Success(t *testing.T) {
 	handler.GetAll(rec, req)
 
 	require.Equal(t, http.StatusOK, rec.Code)
-	expected := dto.DocsResponse[domain.Event]{Docs: events}
+	expected := dto.QuerySuccessResponse{Success: true, Data: dto.DocsResponse[domain.Event]{Docs: events}}
 	utils.AssertJSONResponse(t, rec.Body.String(), expected)
 }
 
