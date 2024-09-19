@@ -18,14 +18,25 @@ const App = () => {
 					channelid: "mychannel",
 					chaincodeid: "basic",
 					function: "CreateAsset",
+					args: [id, "Dono", "12", "5000", "0", "Varejista", "300"],
+				});
+
+				await wait(1000);
+
+				await invoke({
+					channelid: "mychannel",
+					chaincodeid: "basic",
+					function: "UpdateAsset",
 					args: [
 						id,
 						"Dono",
-						"Smartphone ABC",
-						"5000",
-						"300",
 						"12",
+						"5000",
+						"0",
+						"Varejista",
+						"300",
 						"Active",
+						"",
 					],
 				});
 
@@ -38,11 +49,13 @@ const App = () => {
 					args: [
 						id,
 						"Dono",
-						"Smartphone DEF",
-						"5000",
-						"300",
 						"12",
+						"5000",
+						"0",
+						"Varejista",
+						"300",
 						"Active",
+						"",
 					],
 				});
 
@@ -55,28 +68,13 @@ const App = () => {
 					args: [
 						id,
 						"Dono",
-						"Smartphone GHI",
-						"5000",
-						"300",
 						"12",
-						"Active",
-					],
-				});
-
-				await wait(1000);
-
-				await invoke({
-					channelid: "mychannel",
-					chaincodeid: "basic",
-					function: "UpdateAsset",
-					args: [
-						id,
-						"Dono",
-						"Smartphone JKL",
 						"5000",
+						"0",
+						"Varejista",
 						"300",
-						"12",
-						"Active",
+						"Pending",
+						"",
 					],
 				});
 
@@ -104,31 +102,31 @@ const App = () => {
 			}
 		};
 
-		// const timeout = setTimeout(runAssetFlow, 1);
+		const timeout = setTimeout(runAssetFlow, 1);
 
 		// INFO: we can have more than one transaction per block
-		const timeout = setTimeout(() => {
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-			runAssetFlow();
-		}, 1);
+		// const timeout = setTimeout(() => {
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// 	runAssetFlow();
+		// }, 1);
 
 		return () => clearTimeout(timeout);
 	}, []);
