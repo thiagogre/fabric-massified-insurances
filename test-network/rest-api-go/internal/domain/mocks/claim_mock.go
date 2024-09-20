@@ -35,17 +35,17 @@ func (m *MockClaimServiceInterface) EXPECT() *MockClaimServiceInterfaceMockRecor
 }
 
 // StoreClaim mocks base method.
-func (m *MockClaimServiceInterface) StoreClaim(file *multipart.FileHeader) error {
+func (m *MockClaimServiceInterface) StoreClaim(file *multipart.FileHeader, uploadDir string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StoreClaim", file)
+	ret := m.ctrl.Call(m, "StoreClaim", file, uploadDir)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // StoreClaim indicates an expected call of StoreClaim.
-func (mr *MockClaimServiceInterfaceMockRecorder) StoreClaim(file interface{}) *gomock.Call {
+func (mr *MockClaimServiceInterfaceMockRecorder) StoreClaim(file, uploadDir interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreClaim", reflect.TypeOf((*MockClaimServiceInterface)(nil).StoreClaim), file)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreClaim", reflect.TypeOf((*MockClaimServiceInterface)(nil).StoreClaim), file, uploadDir)
 }
 
 // MockClaimRepositoryInterface is a mock of ClaimRepositoryInterface interface.
@@ -72,15 +72,15 @@ func (m *MockClaimRepositoryInterface) EXPECT() *MockClaimRepositoryInterfaceMoc
 }
 
 // SaveFile mocks base method.
-func (m *MockClaimRepositoryInterface) SaveFile(file *multipart.FileHeader, filename string) error {
+func (m *MockClaimRepositoryInterface) SaveFile(file *multipart.FileHeader, uploadDir, filename string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveFile", file, filename)
+	ret := m.ctrl.Call(m, "SaveFile", file, uploadDir, filename)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SaveFile indicates an expected call of SaveFile.
-func (mr *MockClaimRepositoryInterfaceMockRecorder) SaveFile(file, filename interface{}) *gomock.Call {
+func (mr *MockClaimRepositoryInterfaceMockRecorder) SaveFile(file, uploadDir, filename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveFile", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).SaveFile), file, filename)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveFile", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).SaveFile), file, uploadDir, filename)
 }

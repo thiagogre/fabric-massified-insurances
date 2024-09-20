@@ -5,9 +5,9 @@ import (
 )
 
 type ClaimServiceInterface interface {
-	StoreClaim(file *multipart.FileHeader) error
+	StoreClaim(file *multipart.FileHeader, uploadDir string) error
 }
 
 type ClaimRepositoryInterface interface {
-	SaveFile(file *multipart.FileHeader, filename string) error
+	SaveFile(file *multipart.FileHeader, uploadDir, filename string) error
 }
