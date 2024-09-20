@@ -25,3 +25,11 @@ func (s *ClaimService) StoreClaim(file *multipart.FileHeader, uploadDir string) 
 	}
 	return nil
 }
+
+func (s *ClaimService) GetAsset(username string) (*domain.Asset, error) {
+	return s.ClaimRepository.GetAsset(username)
+}
+
+func (s *ClaimService) UpdateAsset(asset *domain.Asset, uploadDir string) error {
+	return s.ClaimRepository.UpdateAsset(asset, uploadDir)
+}
