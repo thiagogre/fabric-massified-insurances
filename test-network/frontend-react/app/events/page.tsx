@@ -21,15 +21,15 @@ const App = () => {
 			}, {} as Record<number, EventProps[]>);
 
 		const getEvents = async () => {
-			try {
-				const response = await fetchAPI({
-					method: "GET",
-					endpoint: "/event",
-				});
-				const docs: EventProps[] | [] = response?.docs ?? [];
+			const response = await fetchAPI({
+				method: "GET",
+				endpoint: "/event",
+			});
+			if (response?.success && response?.data) {
+				const docs: EventProps[] | [] = response.data.docs ?? [];
 				setEvents(groupedEvents(docs));
-			} catch (error) {
-				console.error("Error fetching events: ", error);
+			} else {
+				alert(response?.message);
 			}
 		};
 

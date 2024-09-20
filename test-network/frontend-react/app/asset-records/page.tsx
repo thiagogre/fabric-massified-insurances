@@ -13,93 +13,88 @@ const App = () => {
 		const runAssetFlow = async () => {
 			const id = String(uniqueId());
 
-			try {
-				const postData = await invoke({
-					channelid: "mychannel",
-					chaincodeid: "basic",
-					function: "CreateAsset",
-					args: [id, "Dono", "12", "5000", "0", "Varejista", "300"],
-				});
+			await invoke({
+				channelid: "mychannel",
+				chaincodeid: "basic",
+				function: "CreateAsset",
+				args: [id, "Dono", "12", "5000", "0", "Varejista", "300"],
+			});
 
-				await wait(1000);
+			await wait(1000);
 
-				await invoke({
-					channelid: "mychannel",
-					chaincodeid: "basic",
-					function: "UpdateAsset",
-					args: [
-						id,
-						"Dono",
-						"12",
-						"5000",
-						"0",
-						"Varejista",
-						"300",
-						"Active",
-						"",
-					],
-				});
+			await invoke({
+				channelid: "mychannel",
+				chaincodeid: "basic",
+				function: "UpdateAsset",
+				args: [
+					id,
+					"Dono",
+					"12",
+					"5000",
+					"0",
+					"Varejista",
+					"300",
+					"Active",
+					"",
+				],
+			});
 
-				await wait(1000);
+			await wait(1000);
 
-				await invoke({
-					channelid: "mychannel",
-					chaincodeid: "basic",
-					function: "UpdateAsset",
-					args: [
-						id,
-						"Dono",
-						"12",
-						"5000",
-						"0",
-						"Varejista",
-						"300",
-						"Active",
-						"",
-					],
-				});
+			await invoke({
+				channelid: "mychannel",
+				chaincodeid: "basic",
+				function: "UpdateAsset",
+				args: [
+					id,
+					"Dono",
+					"12",
+					"5000",
+					"0",
+					"Varejista",
+					"300",
+					"Active",
+					"",
+				],
+			});
 
-				await wait(1000);
+			await wait(1000);
 
-				await invoke({
-					channelid: "mychannel",
-					chaincodeid: "basic",
-					function: "UpdateAsset",
-					args: [
-						id,
-						"Dono",
-						"12",
-						"5000",
-						"0",
-						"Varejista",
-						"300",
-						"Pending",
-						"",
-					],
-				});
+			await invoke({
+				channelid: "mychannel",
+				chaincodeid: "basic",
+				function: "UpdateAsset",
+				args: [
+					id,
+					"Dono",
+					"12",
+					"5000",
+					"0",
+					"Varejista",
+					"300",
+					"Pending",
+					"",
+				],
+			});
 
-				await wait(1000);
+			await wait(1000);
 
-				await invoke({
-					channelid: "mychannel",
-					chaincodeid: "basic",
-					function: "DeleteAsset",
-					args: [id],
-				});
+			await invoke({
+				channelid: "mychannel",
+				chaincodeid: "basic",
+				function: "DeleteAsset",
+				args: [id],
+			});
 
-				await wait(1000);
+			await wait(1000);
 
-				const responseData = await query({
-					channelid: "mychannel",
-					chaincodeid: "basic",
-					function: "GetAssetRecords",
-					args: [id],
-				});
-				setData(responseData);
-				console.log("POST request successful:", postData);
-			} catch (error) {
-				console.error("Error fetching data:", error);
-			}
+			const responseData = await query({
+				channelid: "mychannel",
+				chaincodeid: "basic",
+				function: "GetAssetRecords",
+				args: [id],
+			});
+			setData(responseData);
 		};
 
 		const timeout = setTimeout(runAssetFlow, 1);

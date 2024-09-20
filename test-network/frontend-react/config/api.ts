@@ -4,31 +4,29 @@ const query = async (params: Record<string, any>): Promise<any> => {
 	const queryString = new URLSearchParams(params).toString();
 	const url = `${API_BASE_URL}/smartcontract/query?${queryString}`;
 
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw new Error(
-			`Failed to fetch data from ${url}: ${response.statusText}`
-		);
+	try {
+		const response = await fetch(url);
+		return response.json();
+	} catch (error) {
+		return error;
 	}
-
-	return response.json();
 };
 
 const invoke = async (body: Record<string, any>): Promise<any> => {
 	const url = `${API_BASE_URL}/smartcontract/invoke`;
 
-	const response = await fetch(url, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(body),
-	});
-	if (!response.ok) {
-		throw new Error(`Failed to invoke ${url}: ${response.statusText}`);
+	try {
+		const response = await fetch(url, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(body),
+		});
+		return response.json();
+	} catch (error) {
+		return error;
 	}
-
-	return response.json();
 };
 
 type RequestMethod = "GET" | "POST" | "PUT";
@@ -37,7 +35,7 @@ type FetchOptions = {
 	method: RequestMethod;
 	endpoint: string;
 	queryParams?: Record<string, string>;
-	bodyData?: Record<string, any>;
+	bodyData?: any;
 	headers?: Record<string, string>;
 };
 
@@ -62,20 +60,14 @@ const fetchAPI = async ({
 	};
 
 	if (method !== "GET" && bodyData) {
-		config.body = JSON.stringify(bodyData);
+		config.body = bodyData;
 	}
 
 	try {
 		const response = await fetch(url, config);
-
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
-		}
-
-		return await response.json();
+		return response.json();
 	} catch (error) {
-		console.error("Fetch API error:", error);
-		throw error;
+		return error;
 	}
 };
 

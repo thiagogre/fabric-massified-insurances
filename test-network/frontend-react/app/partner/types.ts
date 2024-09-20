@@ -12,7 +12,7 @@ type Product = {
 	brand: string;
 	price: number;
 	image: string;
-	insurance?: InsuranceData;
+	insurance: InsuranceData;
 };
 
 type CarouselProps = {

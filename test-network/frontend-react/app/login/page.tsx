@@ -1,42 +1,45 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import Button from "../../components/button/Button";
 import Input from "../../components/input/Input";
 import { fetchAPI } from "../../config/api";
+import SpinLoading from "../../components/loading/Loading";
 
 const Login = () => {
+	const router = useRouter();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState("");
+	const [btnLoading, setBtnLoading] = useState(false);
 
 	const handleLogin = async () => {
 		if ([username, password].some((v) => !v)) {
-			setError("Please fill in all fields.");
 			return;
 		}
 
-		try {
-			const response = await fetchAPI({
-				method: "POST",
-				endpoint: "/auth",
-				bodyData: { username, password },
-			});
+		setBtnLoading(true);
 
-			// Handle successful login here
-			console.log("Login successful:", response);
-		} catch (error) {
-			console.error("Error during login:", error);
-			setError("Login failed. Please try again.");
+		const response = await fetchAPI({
+			method: "POST",
+			endpoint: "/auth",
+			bodyData: { username, password },
+		});
+
+		if (response.success) {
+			router.push(`/insurer/${username}`);
+		} else {
+			alert(response.message);
 		}
+
+		setBtnLoading(false);
 	};
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-100">
 			<div className="bg-white shadow-md rounded p-8 max-w-md w-full">
 				<h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-				{error && <p className="text-red-500 mb-4">{error}</p>}
 				<div className="mb-4">
 					<Input
 						type="text"
@@ -54,7 +57,11 @@ const Login = () => {
 					/>
 				</div>
 				<div className="flex justify-center">
-					<Button onClick={handleLogin}>Login</Button>
+					<Button onClick={handleLogin} disabled={btnLoading}>
+						<span className="flex items-center">
+							Login {btnLoading && <SpinLoading />}
+						</span>
+					</Button>
 				</div>
 			</div>
 		</div>
