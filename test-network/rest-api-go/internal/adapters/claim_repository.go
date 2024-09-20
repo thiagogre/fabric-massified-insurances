@@ -16,9 +16,7 @@ func NewClaimRepository() *ClaimRepository {
 	return &ClaimRepository{}
 }
 
-func (r *ClaimRepository) SaveFile(file *multipart.FileHeader, filename string) error {
-	uploadDir := "./uploads"
-
+func (r *ClaimRepository) SaveFile(file *multipart.FileHeader, uploadDir, filename string) error {
 	err := os.MkdirAll(uploadDir, os.ModePerm)
 	if err != nil {
 		logger.Error("Error creating upload directory: " + err.Error())

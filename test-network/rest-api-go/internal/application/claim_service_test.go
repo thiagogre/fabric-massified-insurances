@@ -21,11 +21,11 @@ func TestStoreClaim_Success(t *testing.T) {
 	fileHeader := tests.CreateTestFileHeader("test.pdf")
 
 	mockRepo.EXPECT().
-		SaveFile(fileHeader, "test.pdf").
+		SaveFile(fileHeader, "/test-uploads", "test.pdf").
 		Return(nil).
 		Times(1)
 
-	err := service.StoreClaim(fileHeader)
+	err := service.StoreClaim(fileHeader, "/test-uploads")
 	require.NoError(t, err)
 }
 
@@ -40,11 +40,11 @@ func TestStoreClaim_ErrorSavingFile(t *testing.T) {
 	fileHeader := tests.CreateTestFileHeader("test.pdf")
 
 	mockRepo.EXPECT().
-		SaveFile(fileHeader, "test.pdf").
+		SaveFile(fileHeader, "/test-uploads", "test.pdf").
 		Return(fmt.Errorf("mock save file error")).
 		Times(1)
 
-	err := service.StoreClaim(fileHeader)
+	err := service.StoreClaim(fileHeader, "/test-uploads")
 	require.Error(t, err)
 	require.EqualError(t, err, "mock save file error")
 }

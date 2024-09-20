@@ -16,9 +16,9 @@ func NewClaimService(claimRepository domain.ClaimRepositoryInterface) *ClaimServ
 	return &ClaimService{ClaimRepository: claimRepository}
 }
 
-func (s *ClaimService) StoreClaim(file *multipart.FileHeader) error {
+func (s *ClaimService) StoreClaim(file *multipart.FileHeader, uploadDir string) error {
 	filename := filepath.Base(file.Filename)
-	err := s.ClaimRepository.SaveFile(file, filename)
+	err := s.ClaimRepository.SaveFile(file, uploadDir, filename)
 	if err != nil {
 		logger.Error("Error storing file: " + err.Error())
 		return err

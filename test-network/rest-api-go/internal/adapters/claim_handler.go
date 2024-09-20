@@ -36,6 +36,14 @@ func (h *ClaimHandler) UploadEvidences(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorResponse(w, http.StatusBadRequest, "No files uploaded")
 		return
 	}
+	username := ""
+	if r.MultipartForm.Value["username"] != nil && r.MultipartForm.Value["username"][0] != "" {
+		username = r.MultipartForm.Value["username"][0]
+	} else {
+		logger.Error("username is required")
+		utils.ErrorResponse(w, http.StatusBadRequest, "username is required")
+		return
+	}
 
 	var errorMessage string
 	for _, fileHeader := range files {
@@ -59,7 +67,7 @@ func (h *ClaimHandler) UploadEvidences(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		err = h.ClaimService.StoreClaim(fileHeader)
+		err = h.ClaimService.StoreClaim(fileHeader, constants.DefaultUploadDir+"/"+username)
 		if err != nil {
 			errorMessage = fmt.Sprintf("Unable to save file: %s, %v", fileHeader.Filename, err)
 			logger.Error(errorMessage)
