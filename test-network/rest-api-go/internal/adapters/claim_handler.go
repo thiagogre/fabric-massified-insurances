@@ -20,7 +20,7 @@ func NewClaimHandler(claimService domain.ClaimServiceInterface) *ClaimHandler {
 	return &ClaimHandler{ClaimService: claimService}
 }
 
-func (h *ClaimHandler) UploadEvidences(w http.ResponseWriter, r *http.Request) {
+func (h *ClaimHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
 	err := r.ParseMultipartForm(constants.MaxFileSize)
@@ -36,12 +36,22 @@ func (h *ClaimHandler) UploadEvidences(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorResponse(w, http.StatusBadRequest, "No files uploaded")
 		return
 	}
+
 	username := ""
 	if r.MultipartForm.Value["username"] != nil && r.MultipartForm.Value["username"][0] != "" {
 		username = r.MultipartForm.Value["username"][0]
 	} else {
 		logger.Error("username is required")
 		utils.ErrorResponse(w, http.StatusBadRequest, "username is required")
+		return
+	}
+
+	uploadDir := constants.DefaultUploadDir + "/" + username
+
+	asset, err := h.ClaimService.GetAsset(username)
+	if err != nil {
+		logger.Error("Error fetching asset: " + err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Error fetching asset: "+err.Error())
 		return
 	}
 
@@ -67,7 +77,7 @@ func (h *ClaimHandler) UploadEvidences(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		err = h.ClaimService.StoreClaim(fileHeader, constants.DefaultUploadDir+"/"+username)
+		err = h.ClaimService.StoreClaim(fileHeader, uploadDir)
 		if err != nil {
 			errorMessage = fmt.Sprintf("Unable to save file: %s, %v", fileHeader.Filename, err)
 			logger.Error(errorMessage)
@@ -75,12 +85,19 @@ func (h *ClaimHandler) UploadEvidences(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if err := h.ClaimService.UpdateAsset(asset, uploadDir); err != nil {
+		logger.Error("Error updating asset: " + err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Error updating asset: "+err.Error())
+		return
+	}
+
 	if errorMessage != "" {
+		logger.Error(errorMessage)
 		utils.ErrorResponse(w, http.StatusBadRequest, errorMessage)
 		return
 	}
 
-	response := dto.SuccessResponse[string]{Success: true, Data: "All files uploaded successfully"}
+	response := dto.SuccessResponse[string]{Success: true, Data: "Claim in analysis"}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }

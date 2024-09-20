@@ -11,118 +11,217 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
-func TestClaimHandler_UploadClaim(t *testing.T) {
+func setupTest(t *testing.T) (*mocks.MockClaimServiceInterface, *ClaimHandler, *gomock.Controller) {
 	tests.SetupLogger()
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	target := "/claim/evidence/upload"
 	mockClaimService := mocks.NewMockClaimServiceInterface(ctrl)
 	claimHandler := NewClaimHandler(mockClaimService)
+	return mockClaimService, claimHandler, ctrl
+}
 
-	testCases := []struct {
-		name          string
-		fileName      string
-		fileContent   []byte
-		expectedCode  int
-		expectedBody  string
-		mockReturn    error
-		mockStoreCall bool
-		hasUsername   bool
-	}{
-		{
-			name:          "successful upload",
-			fileName:      "test.pdf",
-			fileContent:   []byte("fake pdf content"),
-			expectedCode:  http.StatusOK,
-			expectedBody:  "All files uploaded successfully",
-			mockReturn:    nil,
-			mockStoreCall: true,
-			hasUsername:   true,
-		},
-		{
-			name:          "no files uploaded",
-			fileName:      "",
-			fileContent:   make([]byte, 0),
-			expectedCode:  http.StatusBadRequest,
-			expectedBody:  "No files uploaded",
-			mockStoreCall: false,
-			hasUsername:   true,
-		},
-		{
-			name:          "username is required",
-			fileName:      "test.pdf",
-			fileContent:   []byte("fake pdf content"),
-			expectedCode:  http.StatusBadRequest,
-			expectedBody:  "username is required",
-			mockReturn:    nil,
-			mockStoreCall: false,
-			hasUsername:   false,
-		},
-		{
-			name:          "file too large",
-			fileName:      "large_file.pdf",
-			fileContent:   make([]byte, constants.MaxFileSize+1),
-			expectedCode:  http.StatusBadRequest,
-			expectedBody:  "File too large",
-			mockStoreCall: false,
-			hasUsername:   true,
-		},
-		{
-			name:          "invalid file type",
-			fileName:      "test.txt",
-			fileContent:   []byte("fake txt content"),
-			expectedCode:  http.StatusBadRequest,
-			expectedBody:  "Invalid file type",
-			mockStoreCall: false,
-			hasUsername:   true,
-		},
-		{
-			name:          "error saving file",
-			fileName:      "test.pdf",
-			fileContent:   []byte("fake pdf content"),
-			expectedCode:  http.StatusBadRequest,
-			expectedBody:  "Unable to save file",
-			mockReturn:    errors.New("unable to save file"),
-			mockStoreCall: true,
-			hasUsername:   true,
-		},
-	}
+func TestClaimHandler_Execute_SuccessfulUpload(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			body := new(bytes.Buffer)
-			writer := multipart.NewWriter(body)
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files", "test.pdf")
+	require.NoError(t, err)
+	part.Write([]byte("fake pdf content"))
+	err = writer.WriteField("username", "testuser")
+	require.NoError(t, err)
+	writer.Close()
 
-			part, err := writer.CreateFormFile("files", tc.fileName)
-			require.NoError(t, err)
+	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
 
-			part.Write(tc.fileContent)
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(nil)
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(nil)
 
-			if tc.hasUsername {
-				err = writer.WriteField("username", "testuser")
-				require.NoError(t, err)
-			}
+	claimHandler.Execute(rec, req)
 
-			writer.Close()
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.Contains(t, rec.Body.String(), "Claim in analysis")
+}
 
-			req := httptest.NewRequest(http.MethodPost, target, body)
-			req.Header.Set("Content-Type", writer.FormDataContentType())
+func TestClaimHandler_Execute_NoFilesUploaded(t *testing.T) {
+	_, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
 
-			rec := httptest.NewRecorder()
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	writer.Close()
 
-			if tc.mockStoreCall {
-				mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(tc.mockReturn)
-			}
+	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
 
-			claimHandler.UploadEvidences(rec, req)
+	claimHandler.Execute(rec, req)
 
-			require.Equal(t, tc.expectedCode, rec.Code)
-			require.Contains(t, rec.Body.String(), tc.expectedBody)
-		})
-	}
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+	require.Contains(t, rec.Body.String(), "No files uploaded")
+}
+
+func TestClaimHandler_Execute_UsernameRequired(t *testing.T) {
+	_, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files", "test.pdf")
+	require.NoError(t, err)
+	part.Write([]byte("fake pdf content"))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+
+	claimHandler.Execute(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+	require.Contains(t, rec.Body.String(), "username is required")
+}
+
+func TestClaimHandler_Execute_FileTooLarge(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files", "large_file.pdf")
+	require.NoError(t, err)
+	part.Write(make([]byte, constants.MaxFileSize+1))
+	err = writer.WriteField("username", "testuser")
+	require.NoError(t, err)
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(nil)
+
+	claimHandler.Execute(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+	require.Contains(t, rec.Body.String(), "File too large")
+}
+
+func TestClaimHandler_Execute_InvalidFileType(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files", "test.txt")
+	require.NoError(t, err)
+	part.Write([]byte("fake txt content"))
+	err = writer.WriteField("username", "testuser")
+	require.NoError(t, err)
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(nil)
+
+	claimHandler.Execute(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+	require.Contains(t, rec.Body.String(), "Invalid file type")
+}
+
+func TestClaimHandler_Execute_ErrorFetchingAsset(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files", "test.pdf")
+	require.NoError(t, err)
+	part.Write([]byte("fake pdf content"))
+	err = writer.WriteField("username", "testuser")
+	require.NoError(t, err)
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+
+	mockClaimService.EXPECT().GetAsset("testuser").Return(nil, errors.New("failed to fetch asset"))
+
+	claimHandler.Execute(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+	require.Contains(t, rec.Body.String(), "Error fetching asset")
+}
+
+func TestClaimHandler_Execute_ErrorSavingFile(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files", "test.pdf")
+	require.NoError(t, err)
+	part.Write([]byte("fake pdf content"))
+	err = writer.WriteField("username", "testuser")
+	require.NoError(t, err)
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil)
+	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(errors.New("unable to save file"))
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(nil)
+
+	claimHandler.Execute(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+	require.Contains(t, rec.Body.String(), "Unable to save file")
+}
+
+func TestClaimHandler_Execute_ErrorUpdatingAsset(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files", "test.pdf")
+	require.NoError(t, err)
+	part.Write([]byte("fake pdf content"))
+	err = writer.WriteField("username", "testuser")
+	require.NoError(t, err)
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil)
+	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(nil)
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(errors.New("failed to update asset"))
+
+	claimHandler.Execute(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+	require.Contains(t, rec.Body.String(), "Error updating asset")
 }
