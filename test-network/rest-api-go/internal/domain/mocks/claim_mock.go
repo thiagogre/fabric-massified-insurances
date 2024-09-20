@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	domain "github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 )
 
 // MockClaimServiceInterface is a mock of ClaimServiceInterface interface.
@@ -34,6 +35,21 @@ func (m *MockClaimServiceInterface) EXPECT() *MockClaimServiceInterfaceMockRecor
 	return m.recorder
 }
 
+// GetAsset mocks base method.
+func (m *MockClaimServiceInterface) GetAsset(username string) (*domain.Asset, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAsset", username)
+	ret0, _ := ret[0].(*domain.Asset)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAsset indicates an expected call of GetAsset.
+func (mr *MockClaimServiceInterfaceMockRecorder) GetAsset(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAsset", reflect.TypeOf((*MockClaimServiceInterface)(nil).GetAsset), username)
+}
+
 // StoreClaim mocks base method.
 func (m *MockClaimServiceInterface) StoreClaim(file *multipart.FileHeader, uploadDir string) error {
 	m.ctrl.T.Helper()
@@ -46,6 +62,20 @@ func (m *MockClaimServiceInterface) StoreClaim(file *multipart.FileHeader, uploa
 func (mr *MockClaimServiceInterfaceMockRecorder) StoreClaim(file, uploadDir interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreClaim", reflect.TypeOf((*MockClaimServiceInterface)(nil).StoreClaim), file, uploadDir)
+}
+
+// UpdateAsset mocks base method.
+func (m *MockClaimServiceInterface) UpdateAsset(asset *domain.Asset, uploadDir string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAsset", asset, uploadDir)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAsset indicates an expected call of UpdateAsset.
+func (mr *MockClaimServiceInterfaceMockRecorder) UpdateAsset(asset, uploadDir interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimServiceInterface)(nil).UpdateAsset), asset, uploadDir)
 }
 
 // MockClaimRepositoryInterface is a mock of ClaimRepositoryInterface interface.
@@ -71,6 +101,21 @@ func (m *MockClaimRepositoryInterface) EXPECT() *MockClaimRepositoryInterfaceMoc
 	return m.recorder
 }
 
+// GetAsset mocks base method.
+func (m *MockClaimRepositoryInterface) GetAsset(username string) (*domain.Asset, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAsset", username)
+	ret0, _ := ret[0].(*domain.Asset)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAsset indicates an expected call of GetAsset.
+func (mr *MockClaimRepositoryInterfaceMockRecorder) GetAsset(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAsset", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).GetAsset), username)
+}
+
 // SaveFile mocks base method.
 func (m *MockClaimRepositoryInterface) SaveFile(file *multipart.FileHeader, uploadDir, filename string) error {
 	m.ctrl.T.Helper()
@@ -83,4 +128,18 @@ func (m *MockClaimRepositoryInterface) SaveFile(file *multipart.FileHeader, uplo
 func (mr *MockClaimRepositoryInterfaceMockRecorder) SaveFile(file, uploadDir, filename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveFile", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).SaveFile), file, uploadDir, filename)
+}
+
+// UpdateAsset mocks base method.
+func (m *MockClaimRepositoryInterface) UpdateAsset(asset *domain.Asset, uploadDir string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAsset", asset, uploadDir)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAsset indicates an expected call of UpdateAsset.
+func (mr *MockClaimRepositoryInterfaceMockRecorder) UpdateAsset(asset, uploadDir interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).UpdateAsset), asset, uploadDir)
 }
