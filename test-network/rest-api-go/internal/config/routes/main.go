@@ -54,9 +54,10 @@ func Serve(orgSetup org.OrgSetup) {
 	smartContractRoutes.HandleFunc("", smartContractHandler.Info).Methods("GET")
 	smartContractRoutes.HandleFunc("/invoke", invokeHandler.Execute).Methods("POST")
 	smartContractRoutes.HandleFunc("/query", queryHandler.Execute).Methods("GET")
+	smartContractRoutes.HandleFunc("/claim", claimHandler.Execute).Methods("POST")
 
-	claimRoutes := router.PathPrefix("/claim").Subrouter()
-	claimRoutes.HandleFunc("/evidence/upload", claimHandler.UploadEvidences).Methods("POST")
+	// claimRoutes := router.PathPrefix("/claim").Subrouter()
+	// claimRoutes.HandleFunc("/evidence/upload", claimHandler.UploadEvidences).Methods("POST")
 	// claimRoutes.HandleFunc("/evidence/{id}", claimHandler.GetEvidenceByID).Methods("GET")
 
 	handler := cors.Default().Handler(router)
