@@ -24,7 +24,7 @@ const Login = () => {
 		const response = await fetchAPI({
 			method: "POST",
 			endpoint: "/auth",
-			bodyData: { username, password },
+			bodyData: JSON.stringify({ username, password }),
 		});
 
 		if (response.success) {

@@ -6,14 +6,12 @@ import ProductInsuranceCard from "../../../components/productInsuranceCard/Produ
 import { query } from "../../../config/api";
 import { products } from "../../../mocks/products";
 import Button from "../../../components/button/Button";
-import SpinLoading from "../../../components/loading/Loading";
 
 const App = ({ params }: { params: { username: string } }) => {
 	const { username } = params;
 
 	const router = useRouter();
 
-	const [btnLoading, setBtnLoading] = useState(false);
 	const [insuredAsset, setInsuredAsset] = useState<any>(null);
 	const product = products.find(
 		(product) => product.id === String(insuredAsset?.CoverageType)
@@ -53,13 +51,15 @@ const App = ({ params }: { params: { username: string } }) => {
 					{...{ ...product, claimStatus: insuredAsset?.ClaimStatus }}
 				/>
 			)}
-			<div className="mt-6 flex justify-end">
-				<Button onClick={claim} disabled={btnLoading}>
-					<span className="flex items-center">
-						Acionar seguro {btnLoading && <SpinLoading />}
-					</span>
-				</Button>
-			</div>
+			{insuredAsset?.ClaimStatus === "Active" && (
+				<div className="mt-6 flex justify-end">
+					<Button onClick={claim}>
+						<span className="flex items-center">
+							Acionar seguro
+						</span>
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 };

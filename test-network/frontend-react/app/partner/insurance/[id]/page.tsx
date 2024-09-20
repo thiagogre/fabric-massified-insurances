@@ -37,7 +37,7 @@ const App = ({ params }: { params: { id: string } }) => {
 		const response = await fetchAPI({
 			method: "POST",
 			endpoint: "/identity",
-			bodyData: {},
+			bodyData: JSON.stringify({}),
 		});
 		if (response?.success && response?.data) {
 			const uniqueID = String(uniqueId());

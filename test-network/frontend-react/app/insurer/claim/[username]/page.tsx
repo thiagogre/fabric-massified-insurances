@@ -2,11 +2,17 @@
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { fetchAPI } from "../../../../config/api";
+import Button from "../../../../components/button/Button";
+import { useRouter } from "next/navigation";
+import SpinLoading from "../../../../components/loading/Loading";
 
 const App = ({ params }: { params: { username: string } }) => {
 	const { username } = params;
+	const router = useRouter();
+
 	const [description, setDescription] = useState("");
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+	const [btnLoading, setBtnLoading] = useState(false);
 
 	const onDrop = useCallback((acceptedFiles: File[]) => {
 		setSelectedFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
@@ -34,9 +40,8 @@ const App = ({ params }: { params: { username: string } }) => {
 		multiple: true,
 	});
 
-	const handleFormSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-
+	const handleFormSubmit = async () => {
+		setBtnLoading(true);
 		if (selectedFiles.length === 0) {
 			alert("Selecione pelo menos um arquivo.");
 			return;
@@ -50,23 +55,27 @@ const App = ({ params }: { params: { username: string } }) => {
 
 		const response = await fetchAPI({
 			method: "POST",
-			endpoint: "/claim/evidence/upload",
+			endpoint: "/smartcontract/claim",
 			bodyData: formData,
 			headers: {},
 		});
 
 		if (response?.success) {
 			alert(response?.data);
+
+			router.back();
 		} else {
 			alert(response?.message);
 		}
+
+		setBtnLoading(false);
 	};
 
 	return (
 		<div className="max-w-lg mx-auto p-6">
 			<h1 className="text-2xl font-bold mb-4">Envio de Evidências</h1>
 
-			<form onSubmit={handleFormSubmit}>
+			<form>
 				<div className="mb-4">
 					<label
 						htmlFor="description"
@@ -126,7 +135,7 @@ const App = ({ params }: { params: { username: string } }) => {
 										className="text-red-500 hover:text-red-700 ml-2"
 										onClick={() => handleRemoveFile(index)}
 									>
-										Remove
+										Remover
 									</button>
 								</li>
 							))}
@@ -134,12 +143,13 @@ const App = ({ params }: { params: { username: string } }) => {
 					</div>
 				)}
 
-				<button
-					type="submit"
-					className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
-				>
-					Enviar
-				</button>
+				<div className="mt-6">
+					<Button onClick={handleFormSubmit} disabled={btnLoading}>
+						<span className="flex items-center">
+							Enviar {btnLoading && <SpinLoading />}
+						</span>
+					</Button>
+				</div>
 			</form>
 		</div>
 	);
