@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SOURCE=$1
-DESTINATION=$2
+SOURCE=${1:-"internal/domain"}
+DESTINATION=${2:-"internal/domain/mocks"}
 
 mkdir -p $DESTINATION
 
