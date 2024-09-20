@@ -7,6 +7,7 @@ const (
 	DBType                      = db.SQLite
 	DBPath                      = TestNetworkPath + "organizations/fabric-ca/org1/fabric-ca-server.db"
 	ServerAddr                  = ":3001"
+	DefaultUploadDir            = "./uploads"
 	DefaultUsernameLength       = 16
 	DefaultPasswordLength       = 24
 	MaxFileSize           int64 = 10 << 20 // 10MB
