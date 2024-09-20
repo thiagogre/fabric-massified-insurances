@@ -12,6 +12,9 @@ const (
 	DefaultPasswordLength       = 24
 	MaxFileSize           int64 = 10 << 20 // 10MB
 
+	ChannelID   = "mychannel"
+	ChaincodeID = "basic"
+
 	RedColorOuput      = "\033[31m"
 	GreenColorOuput    = "\033[32m"
 	YellowColorOutput  = "\033[33m"
