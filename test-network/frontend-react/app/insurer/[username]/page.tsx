@@ -32,6 +32,8 @@ const App = ({ params }: { params: { username: string } }) => {
 				});
 				if (response?.success && response?.data?.docs?.length) {
 					setInsuredAsset(response.data.docs[0]);
+				} else {
+					alert(response?.message);
 				}
 			})();
 		}, 1);

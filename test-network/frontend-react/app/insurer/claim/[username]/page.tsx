@@ -55,7 +55,7 @@ const App = ({ params }: { params: { username: string } }) => {
 
 		const response = await fetchAPI({
 			method: "POST",
-			endpoint: "/smartcontract/claim",
+			endpoint: "/claim",
 			bodyData: formData,
 			headers: {},
 		});

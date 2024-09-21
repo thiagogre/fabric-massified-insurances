@@ -1,5 +1,6 @@
 import type { Product } from "../../app/partner/types";
-import type { BadgeProps, ClaimStatus } from "./types";
+import Button from "../button/Button";
+import type { BadgeProps, ButtonProps, ClaimStatus } from "./types";
 
 const Badge = ({ backgroundColor, textColor, text }: BadgeProps) => {
 	return (
@@ -13,9 +14,9 @@ const Badge = ({ backgroundColor, textColor, text }: BadgeProps) => {
 };
 
 const ProductInsuranceCard = (
-	product: Product & { claimStatus?: ClaimStatus }
+	product: Product & { claimStatus?: ClaimStatus } & { btn?: ButtonProps }
 ) => {
-	const { insurance, claimStatus } = product;
+	const { insurance, claimStatus, btn } = product;
 	const claimStatusColor = {
 		Active: { bgColor: "yellow", textColor: "black", text: "Ativo" },
 		Pending: { bgColor: "orange", textColor: "black", text: "Em Análise" },
@@ -71,6 +72,13 @@ const ProductInsuranceCard = (
 					</div>
 				</div>
 			</div>
+			{!!btn && (
+				<div className="mt-6 flex justify-end">
+					<Button onClick={btn.onClick}>
+						<span className="flex items-center">{btn.title}</span>
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 };

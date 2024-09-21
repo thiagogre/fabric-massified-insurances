@@ -1,3 +1,8 @@
+type ButtonProps = {
+	onClick: () => void;
+	title: string;
+};
+
 type BadgeProps = {
 	backgroundColor: string;
 	textColor: string;
@@ -6,4 +11,4 @@ type BadgeProps = {
 
 type ClaimStatus = "Active" | "Pending" | "Approved" | "Rejected";
 
-export type { BadgeProps, ClaimStatus };
+export type { BadgeProps, ClaimStatus, ButtonProps };

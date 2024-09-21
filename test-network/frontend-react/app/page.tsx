@@ -11,9 +11,10 @@ const App = () => {
 
 	const routes = [
 		{ route: "/login", title: "Login" },
-		{ route: "/asset-records", title: "Asset Records" },
 		{ route: "/partner", title: "Loja do Parceiro de distribuição" },
+		{ route: "/evidence-analysis", title: "Análise de Evidências" },
 		{ route: "/events", title: "Events" },
+		{ route: "/asset-records", title: "Asset Records" },
 	];
 
 	return (
