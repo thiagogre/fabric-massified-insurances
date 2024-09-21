@@ -1,6 +1,7 @@
 package application
 
 import (
+	"fmt"
 	"mime/multipart"
 	"path/filepath"
 
@@ -24,6 +25,25 @@ func (s *ClaimService) StoreClaim(file *multipart.FileHeader, uploadDir string) 
 		return err
 	}
 	return nil
+}
+
+func (s *ClaimService) ListPDFs(username, host string) ([]string, error) {
+	pdfFiles, err := s.ClaimRepository.ListPDFFiles(username)
+	if err != nil {
+		return nil, err
+	}
+
+	var pdfURLs []string
+	for _, pdfFile := range pdfFiles {
+		pdfURL := fmt.Sprintf("%s/uploads/%s/%s", host, username, pdfFile)
+		pdfURLs = append(pdfURLs, pdfURL)
+	}
+
+	return pdfURLs, nil
+}
+
+func (s *ClaimService) IsExist(filePath string) bool {
+	return s.ClaimRepository.IsFileOrDirExist(filePath)
 }
 
 func (s *ClaimService) GetAsset(username string) (*domain.Asset, error) {
