@@ -50,6 +50,35 @@ func (mr *MockClaimServiceInterfaceMockRecorder) GetAsset(username interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAsset", reflect.TypeOf((*MockClaimServiceInterface)(nil).GetAsset), username)
 }
 
+// IsExist mocks base method.
+func (m *MockClaimServiceInterface) IsExist(filePath string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsExist", filePath)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsExist indicates an expected call of IsExist.
+func (mr *MockClaimServiceInterfaceMockRecorder) IsExist(filePath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsExist", reflect.TypeOf((*MockClaimServiceInterface)(nil).IsExist), filePath)
+}
+
+// ListPDFs mocks base method.
+func (m *MockClaimServiceInterface) ListPDFs(username, host string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPDFs", username, host)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPDFs indicates an expected call of ListPDFs.
+func (mr *MockClaimServiceInterfaceMockRecorder) ListPDFs(username, host interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPDFs", reflect.TypeOf((*MockClaimServiceInterface)(nil).ListPDFs), username, host)
+}
+
 // StoreClaim mocks base method.
 func (m *MockClaimServiceInterface) StoreClaim(file *multipart.FileHeader, uploadDir string) error {
 	m.ctrl.T.Helper()
@@ -114,6 +143,35 @@ func (m *MockClaimRepositoryInterface) GetAsset(username string) (*domain.Asset,
 func (mr *MockClaimRepositoryInterfaceMockRecorder) GetAsset(username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAsset", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).GetAsset), username)
+}
+
+// IsFileOrDirExist mocks base method.
+func (m *MockClaimRepositoryInterface) IsFileOrDirExist(path string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsFileOrDirExist", path)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsFileOrDirExist indicates an expected call of IsFileOrDirExist.
+func (mr *MockClaimRepositoryInterfaceMockRecorder) IsFileOrDirExist(path interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsFileOrDirExist", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).IsFileOrDirExist), path)
+}
+
+// ListPDFFiles mocks base method.
+func (m *MockClaimRepositoryInterface) ListPDFFiles(username string) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListPDFFiles", username)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPDFFiles indicates an expected call of ListPDFFiles.
+func (mr *MockClaimRepositoryInterfaceMockRecorder) ListPDFFiles(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPDFFiles", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).ListPDFFiles), username)
 }
 
 // SaveFile mocks base method.
