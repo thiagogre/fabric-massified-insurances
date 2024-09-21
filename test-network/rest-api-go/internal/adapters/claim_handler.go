@@ -104,6 +104,8 @@ func (h *ClaimHandler) Execute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ClaimHandler) GetPDFs(w http.ResponseWriter, r *http.Request) {
+	logger.Info("Received a request")
+
 	vars := mux.Vars(r)
 	username := vars["username"]
 
@@ -120,6 +122,8 @@ func (h *ClaimHandler) GetPDFs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ClaimHandler) ServePDF(w http.ResponseWriter, r *http.Request) {
+	logger.Info("Received a request")
+
 	vars := mux.Vars(r)
 	username := vars["username"]
 	filename := vars["filename"]

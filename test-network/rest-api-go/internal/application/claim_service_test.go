@@ -69,8 +69,8 @@ func TestListPDFs_Success(t *testing.T) {
 	pdfURLs, err := service.ListPDFs(username, host)
 	require.NoError(t, err)
 	require.Equal(t, []string{
-		"http://localhost/uploads/testuser/file1.pdf",
-		"http://localhost/uploads/testuser/file2.pdf",
+		"http://localhost/claim/evidence/testuser/file1.pdf",
+		"http://localhost/claim/evidence/testuser/file2.pdf",
 	}, pdfURLs)
 }
 

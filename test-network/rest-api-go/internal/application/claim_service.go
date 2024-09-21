@@ -35,7 +35,7 @@ func (s *ClaimService) ListPDFs(username, host string) ([]string, error) {
 
 	var pdfURLs []string
 	for _, pdfFile := range pdfFiles {
-		pdfURL := fmt.Sprintf("%s/uploads/%s/%s", host, username, pdfFile)
+		pdfURL := fmt.Sprintf("%s/claim/evidence/%s/%s", host, username, pdfFile)
 		pdfURLs = append(pdfURLs, pdfURL)
 	}
 
