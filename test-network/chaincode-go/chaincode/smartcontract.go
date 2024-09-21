@@ -20,7 +20,7 @@ type SmartContract struct {
 // Insert struct field in alphabetic order => to achieve determinism across languages
 // golang keeps the order when marshal to json but doesn't order automatically
 type Asset struct {
-	ClaimStatus      string `json:"ClaimStatus"`      // Status do sinistro (Ex: "Active", "Pending", "Approved", "Rejected")
+	ClaimStatus      string `json:"ClaimStatus"`      // Status do sinistro (Ex: "Active", "Pending", "EvidencesRejected", "EvidencesApproved", "Approved", "Rejected")
 	CoverageDuration int    `json:"CoverageDuration"` // Prazo do seguro em meses
 	CoverageType     int    `json:"CoverageType"`     // 0 = Cobertura contra roubo/furto de celular
 	CoverageValue    int    `json:"CoverageValue"`    // Valor coberto pelo seguro
