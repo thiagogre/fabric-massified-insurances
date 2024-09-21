@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"io"
+	"strings"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
@@ -53,7 +53,38 @@ func (r *ClaimRepository) SaveFile(file *multipart.FileHeader, uploadDir, filena
 	return nil
 }
 
-func (h *ClaimRepository) GetAsset(username string) (*domain.Asset, error) {
+func (r *ClaimRepository) IsFileOrDirExist(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
+func (r *ClaimRepository) ListPDFFiles(username string) ([]string, error) {
+	folderPath := fmt.Sprintf("%s/%s", constants.DefaultUploadDir, username)
+
+	if !r.IsFileOrDirExist(folderPath) {
+		return nil, fmt.Errorf("folder not found")
+	}
+
+	files, err := os.ReadDir(folderPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var pdfFiles []string
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".pdf") {
+			pdfFiles = append(pdfFiles, file.Name())
+		}
+	}
+
+	if len(pdfFiles) == 0 {
+		return nil, fmt.Errorf("no PDF files found")
+	}
+
+	return pdfFiles, nil
+}
+
+func (r *ClaimRepository) GetAsset(username string) (*domain.Asset, error) {
 	URL := fmt.Sprintf(
 		"http://localhost%s/smartcontract/query?channelid=%s&chaincodeid=%s&function=GetAssetsByRichQuery&args=%s",
 		constants.ServerAddr,
@@ -89,7 +120,7 @@ func (h *ClaimRepository) GetAsset(username string) (*domain.Asset, error) {
 	return &response.Data.Docs[0], nil
 }
 
-func (h *ClaimRepository) UpdateAsset(asset *domain.Asset, uploadDir string) error {
+func (r *ClaimRepository) UpdateAsset(asset *domain.Asset, uploadDir string) error {
 	URL := fmt.Sprintf("http://localhost%s/smartcontract/invoke", constants.ServerAddr)
 	body := dto.InvokeRequest{
 		ChannelID:   constants.ChannelID,
