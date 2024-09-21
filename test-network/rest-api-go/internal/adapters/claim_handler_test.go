@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
@@ -24,6 +25,16 @@ func setupTest(t *testing.T) (*mocks.MockClaimServiceInterface, *ClaimHandler, *
 	return mockClaimService, claimHandler, ctrl
 }
 
+// THIS SETUP IS REQUIRED 'CAUSE THE TEST CASES THAT USED IT
+// GET PATH PARAMETERS WITH MUX PKG
+func setupClaimRouterForTest(claimHandler *ClaimHandler) *mux.Router {
+	router := mux.NewRouter()
+	claimRoutes := router.PathPrefix("/claim").Subrouter()
+	claimRoutes.HandleFunc("/evidence/{username}", claimHandler.GetPDFs).Methods(http.MethodGet)
+	claimRoutes.HandleFunc("/evidence/{username}/{filename}", claimHandler.ServePDF).Methods(http.MethodGet)
+	return router
+}
+
 func TestClaimHandler_Execute_SuccessfulUpload(t *testing.T) {
 	mockClaimService, claimHandler, ctrl := setupTest(t)
 	defer ctrl.Finish()
@@ -37,7 +48,7 @@ func TestClaimHandler_Execute_SuccessfulUpload(t *testing.T) {
 	require.NoError(t, err)
 	writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req := httptest.NewRequest(http.MethodPost, "/claim", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
@@ -60,7 +71,7 @@ func TestClaimHandler_Execute_NoFilesUploaded(t *testing.T) {
 	writer := multipart.NewWriter(body)
 	writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req := httptest.NewRequest(http.MethodPost, "/claim", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
@@ -81,7 +92,7 @@ func TestClaimHandler_Execute_UsernameRequired(t *testing.T) {
 	part.Write([]byte("fake pdf content"))
 	writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req := httptest.NewRequest(http.MethodPost, "/claim", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
@@ -104,7 +115,7 @@ func TestClaimHandler_Execute_FileTooLarge(t *testing.T) {
 	require.NoError(t, err)
 	writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req := httptest.NewRequest(http.MethodPost, "/claim", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
@@ -131,7 +142,7 @@ func TestClaimHandler_Execute_InvalidFileType(t *testing.T) {
 	require.NoError(t, err)
 	writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req := httptest.NewRequest(http.MethodPost, "/claim", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
@@ -158,7 +169,7 @@ func TestClaimHandler_Execute_ErrorFetchingAsset(t *testing.T) {
 	require.NoError(t, err)
 	writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req := httptest.NewRequest(http.MethodPost, "/claim", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
@@ -183,7 +194,7 @@ func TestClaimHandler_Execute_ErrorSavingFile(t *testing.T) {
 	require.NoError(t, err)
 	writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req := httptest.NewRequest(http.MethodPost, "/claim", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
@@ -211,7 +222,7 @@ func TestClaimHandler_Execute_ErrorUpdatingAsset(t *testing.T) {
 	require.NoError(t, err)
 	writer.Close()
 
-	req := httptest.NewRequest(http.MethodPost, "/smartcontract/claim", body)
+	req := httptest.NewRequest(http.MethodPost, "/claim", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
@@ -224,4 +235,89 @@ func TestClaimHandler_Execute_ErrorUpdatingAsset(t *testing.T) {
 
 	require.Equal(t, http.StatusBadRequest, rec.Code)
 	require.Contains(t, rec.Body.String(), "Error updating asset")
+}
+
+func TestClaimHandler_GetPDFs_Success(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	router := setupClaimRouterForTest(claimHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/claim/evidence/testuser", nil)
+	rec := httptest.NewRecorder()
+
+	pdfURLs := []string{"http://localhost/uploads/testuser/file1.pdf", "http://localhost/uploads/testuser/file2.pdf"}
+	mockClaimService.EXPECT().ListPDFs("testuser", req.Host).Return(pdfURLs, nil)
+
+	router.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.Contains(t, rec.Body.String(), "file1.pdf")
+	require.Contains(t, rec.Body.String(), "file2.pdf")
+}
+
+func TestClaimHandler_GetPDFs_ErrorListingPDFs(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	router := setupClaimRouterForTest(claimHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/claim/evidence/testuser", nil)
+	rec := httptest.NewRecorder()
+
+	mockClaimService.EXPECT().ListPDFs("testuser", req.Host).Return(nil, errors.New("failed to list PDFs"))
+
+	router.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+	require.Contains(t, rec.Body.String(), "Error listing PDFs")
+}
+
+func TestClaimHandler_GetPDFs_NoPDFsFound(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	router := setupClaimRouterForTest(claimHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/claim/evidence/testuser", nil)
+	rec := httptest.NewRecorder()
+
+	mockClaimService.EXPECT().ListPDFs("testuser", req.Host).Return([]string{}, nil)
+
+	router.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.Contains(t, rec.Body.String(), "[]")
+}
+
+func TestClaimHandler_ServePDF_Success(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	router := setupClaimRouterForTest(claimHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/claim/evidence/testuser/test.pdf", nil)
+	rec := httptest.NewRecorder()
+
+	mockClaimService.EXPECT().IsExist("./uploads/testuser/test.pdf").Return(true)
+
+	router.ServeHTTP(rec, req)
+	require.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestClaimHandler_ServePDF_FileNotFound(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	router := setupClaimRouterForTest(claimHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/claim/evidence/testuser/test.pdf", nil)
+	rec := httptest.NewRecorder()
+
+	mockClaimService.EXPECT().IsExist("./uploads/testuser/test.pdf").Return(false)
+
+	router.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusNotFound, rec.Code)
+	require.Contains(t, rec.Body.String(), "File not found")
 }

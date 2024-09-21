@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/gorilla/mux"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
@@ -100,4 +101,38 @@ func (h *ClaimHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	response := dto.SuccessResponse[string]{Success: true, Data: "Claim in analysis"}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
+}
+
+func (h *ClaimHandler) GetPDFs(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	username := vars["username"]
+
+	pdfURLs, err := h.ClaimService.ListPDFs(username, r.Host)
+	if err != nil {
+		logger.Error("Error listing PDFs: " + err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Error listing PDFs: "+err.Error())
+		return
+	}
+
+	response := dto.SuccessResponse[[]string]{Success: true, Data: pdfURLs}
+	logger.Success(response)
+	utils.SuccessResponse(w, http.StatusOK, response)
+}
+
+func (h *ClaimHandler) ServePDF(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	username := vars["username"]
+	filename := vars["filename"]
+
+	filePath := fmt.Sprintf("%s/%s/%s", constants.DefaultUploadDir, username, filename)
+
+	if !h.ClaimService.IsExist(filePath) {
+		logger.Error("File not found")
+		utils.ErrorResponse(w, http.StatusNotFound, "File not found")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/pdf")
+	w.WriteHeader(http.StatusOK)
+	http.ServeFile(w, r, filePath)
 }
