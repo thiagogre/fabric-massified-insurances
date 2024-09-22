@@ -9,7 +9,6 @@ type Asset struct {
 	CoverageDuration int    `json:"CoverageDuration"`
 	CoverageType     int    `json:"CoverageType"`
 	CoverageValue    int    `json:"CoverageValue"`
-	Evidences        string `json:"Evidences"`
 	ID               string `json:"ID"`
 	Insured          string `json:"Insured"`
 	Partner          string `json:"Partner"`
@@ -21,7 +20,7 @@ type ClaimServiceInterface interface {
 	ListPDFs(username, host string) ([]string, error)
 	IsExist(filePath string) bool
 	GetAsset(username string) (*Asset, error)
-	UpdateAsset(asset *Asset, uploadDir string) error
+	UpdateAsset(asset *Asset) error
 }
 
 type ClaimRepositoryInterface interface {
@@ -29,5 +28,5 @@ type ClaimRepositoryInterface interface {
 	ListPDFFiles(username string) ([]string, error)
 	IsFileOrDirExist(path string) bool
 	GetAsset(username string) (*Asset, error)
-	UpdateAsset(asset *Asset, uploadDir string) error
+	UpdateAsset(asset *Asset) error
 }

@@ -185,14 +185,13 @@ func TestUpdateAsset_Success(t *testing.T) {
 	service := NewClaimService(mockRepo)
 
 	asset := &domain.Asset{ID: "assetID", Insured: "testuser"}
-	uploadDir := "/test-uploads"
 
 	mockRepo.EXPECT().
-		UpdateAsset(asset, uploadDir).
+		UpdateAsset(asset).
 		Return(nil).
 		Times(1)
 
-	err := service.UpdateAsset(asset, uploadDir)
+	err := service.UpdateAsset(asset)
 	require.NoError(t, err)
 }
 
@@ -205,14 +204,13 @@ func TestUpdateAsset_Error(t *testing.T) {
 	service := NewClaimService(mockRepo)
 
 	asset := &domain.Asset{ID: "assetID", Insured: "testuser"}
-	uploadDir := "/test-uploads"
 
 	mockRepo.EXPECT().
-		UpdateAsset(asset, uploadDir).
+		UpdateAsset(asset).
 		Return(fmt.Errorf("mock update asset error")).
 		Times(1)
 
-	err := service.UpdateAsset(asset, uploadDir)
+	err := service.UpdateAsset(asset)
 	require.Error(t, err)
 	require.EqualError(t, err, "mock update asset error")
 }

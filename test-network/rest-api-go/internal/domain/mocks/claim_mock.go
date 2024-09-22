@@ -94,17 +94,17 @@ func (mr *MockClaimServiceInterfaceMockRecorder) StoreClaim(file, uploadDir inte
 }
 
 // UpdateAsset mocks base method.
-func (m *MockClaimServiceInterface) UpdateAsset(asset *domain.Asset, uploadDir string) error {
+func (m *MockClaimServiceInterface) UpdateAsset(asset *domain.Asset) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAsset", asset, uploadDir)
+	ret := m.ctrl.Call(m, "UpdateAsset", asset)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateAsset indicates an expected call of UpdateAsset.
-func (mr *MockClaimServiceInterfaceMockRecorder) UpdateAsset(asset, uploadDir interface{}) *gomock.Call {
+func (mr *MockClaimServiceInterfaceMockRecorder) UpdateAsset(asset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimServiceInterface)(nil).UpdateAsset), asset, uploadDir)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimServiceInterface)(nil).UpdateAsset), asset)
 }
 
 // MockClaimRepositoryInterface is a mock of ClaimRepositoryInterface interface.
@@ -189,15 +189,15 @@ func (mr *MockClaimRepositoryInterfaceMockRecorder) SaveFile(file, uploadDir, fi
 }
 
 // UpdateAsset mocks base method.
-func (m *MockClaimRepositoryInterface) UpdateAsset(asset *domain.Asset, uploadDir string) error {
+func (m *MockClaimRepositoryInterface) UpdateAsset(asset *domain.Asset) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAsset", asset, uploadDir)
+	ret := m.ctrl.Call(m, "UpdateAsset", asset)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateAsset indicates an expected call of UpdateAsset.
-func (mr *MockClaimRepositoryInterfaceMockRecorder) UpdateAsset(asset, uploadDir interface{}) *gomock.Call {
+func (mr *MockClaimRepositoryInterfaceMockRecorder) UpdateAsset(asset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).UpdateAsset), asset, uploadDir)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).UpdateAsset), asset)
 }

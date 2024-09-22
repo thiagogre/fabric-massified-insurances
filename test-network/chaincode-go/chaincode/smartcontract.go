@@ -24,7 +24,6 @@ type Asset struct {
 	CoverageDuration int    `json:"CoverageDuration"` // Prazo do seguro em meses
 	CoverageType     int    `json:"CoverageType"`     // 0 = Cobertura contra roubo/furto de celular
 	CoverageValue    int    `json:"CoverageValue"`    // Valor coberto pelo seguro
-	Evidences        string `json:"Evidences"`        // Evidências
 	ID               string `json:"ID"`               // ID único da apólice
 	Insured          string `json:"Insured"`          // Proprietário da apólice
 	Partner          string `json:"Partner"`          // Parceiro de distribuição
@@ -47,10 +46,10 @@ type DocsResponse struct {
 // InitLedger adds a base set of insurance policies to the ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	policies := []Asset{
-		{ID: "policy1", Insured: "Alice", Evidences: "", CoverageDuration: 12, CoverageType: 0, CoverageValue: 5000, Premium: 300, Partner: "Parceiro varejista", ClaimStatus: "Active"},
-		{ID: "policy2", Insured: "Bob", Evidences: "", CoverageDuration: 12, CoverageType: 0, CoverageValue: 4000, Premium: 250, Partner: "Parceiro varejista", ClaimStatus: "Pending"},
-		{ID: "policy3", Insured: "Charlie", Evidences: "", CoverageDuration: 12, CoverageType: 0, CoverageValue: 6000, Premium: 350, Partner: "Parceiro varejista", ClaimStatus: "Approved"},
-		{ID: "policy4", Insured: "Diana", Evidences: "", CoverageDuration: 12, CoverageType: 0, CoverageValue: 4500, Premium: 275, Partner: "Parceiro varejista", ClaimStatus: "Reject"},
+		{ID: "policy1", Insured: "Alice", CoverageDuration: 12, CoverageType: 0, CoverageValue: 5000, Premium: 300, Partner: "Parceiro varejista", ClaimStatus: "Active"},
+		{ID: "policy2", Insured: "Bob", CoverageDuration: 12, CoverageType: 0, CoverageValue: 4000, Premium: 250, Partner: "Parceiro varejista", ClaimStatus: "Pending"},
+		{ID: "policy3", Insured: "Charlie", CoverageDuration: 12, CoverageType: 0, CoverageValue: 6000, Premium: 350, Partner: "Parceiro varejista", ClaimStatus: "Approved"},
+		{ID: "policy4", Insured: "Diana", CoverageDuration: 12, CoverageType: 0, CoverageValue: 4500, Premium: 275, Partner: "Parceiro varejista", ClaimStatus: "Reject"},
 	}
 
 	for _, policy := range policies {
@@ -112,7 +111,6 @@ func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		CoverageDuration: coverageDuration,
 		CoverageType:     coverageType,
 		CoverageValue:    converageValue,
-		Evidences:        "",
 		Premium:          premium,
 		ClaimStatus:      "Active",
 	}
@@ -140,7 +138,7 @@ func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, i
 }
 
 // UpdateAsset updates an existing insurance policy in the world state with provided parameters.
-func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, insured string, coverageDuration int, converageValue int, coverageType int, partner string, premium int, claimStatus string, evidences string) error {
+func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, insured string, coverageDuration int, converageValue int, coverageType int, partner string, premium int, claimStatus string) error {
 	// if err := validateABAC(ctx, []string{"abac.evidence_analyst"}); err != nil {
 	// 	return err
 	// }
@@ -160,7 +158,6 @@ func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		CoverageDuration: coverageDuration,
 		CoverageType:     coverageType,
 		CoverageValue:    converageValue,
-		Evidences:        evidences,
 		Premium:          premium,
 		ClaimStatus:      claimStatus,
 	}

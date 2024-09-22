@@ -52,10 +52,10 @@ func TestClaimHandler_Execute_SuccessfulUpload(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
-	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
 	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
 	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(nil)
-	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(nil)
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any()).Return(nil)
 
 	claimHandler.Execute(rec, req)
 
@@ -119,9 +119,9 @@ func TestClaimHandler_Execute_FileTooLarge(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
-	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
 	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(nil)
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any()).Return(nil)
 
 	claimHandler.Execute(rec, req)
 
@@ -146,9 +146,9 @@ func TestClaimHandler_Execute_InvalidFileType(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
-	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
 	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(nil)
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any()).Return(nil)
 
 	claimHandler.Execute(rec, req)
 
@@ -198,10 +198,10 @@ func TestClaimHandler_Execute_ErrorSavingFile(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
-	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
 	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil)
 	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(errors.New("unable to save file"))
-	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(nil)
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any()).Return(nil)
 
 	claimHandler.Execute(rec, req)
 
@@ -226,10 +226,10 @@ func TestClaimHandler_Execute_ErrorUpdatingAsset(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
-	mockAsset := &domain.Asset{ID: "123", Insured: "testuser", Evidences: "evidence123"}
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
 	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil)
 	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(nil)
-	mockClaimService.EXPECT().UpdateAsset(gomock.Any(), "./uploads/testuser").Return(errors.New("failed to update asset"))
+	mockClaimService.EXPECT().UpdateAsset(gomock.Any()).Return(errors.New("failed to update asset"))
 
 	claimHandler.Execute(rec, req)
 

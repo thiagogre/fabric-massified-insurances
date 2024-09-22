@@ -49,22 +49,22 @@ func TestCreateAsset(t *testing.T) {
 	transactionContext.GetStubReturns(chaincodeStub)
 
 	asset := chaincode.SmartContract{}
-	err := asset.CreateAsset(transactionContext, "", "", "", 0, 0, 0)
+	err := asset.CreateAsset(transactionContext, "", "", 0, 0, 0, "", 0)
 	require.NoError(t, err)
 
 	chaincodeStub.GetStateReturns([]byte{}, nil)
-	err = asset.CreateAsset(transactionContext, "policy1", "", "", 0, 0, 0)
+	err = asset.CreateAsset(transactionContext, "policy1", "", 0, 0, 0, "", 0)
 	require.NoError(t, err)
 
 	expectedAsset := &chaincode.Asset{ID: "policy1"}
 	bytes, err := json.Marshal(expectedAsset)
 	require.NoError(t, err)
 	chaincodeStub.GetStateReturns(bytes, nil)
-	err = asset.CreateAsset(transactionContext, "policy1", "", "", 0, 0, 0)
+	err = asset.CreateAsset(transactionContext, "policy1", "", 0, 0, 0, "", 0)
 	require.EqualError(t, err, "the asset policy1 already exist")
 
 	chaincodeStub.GetStateReturns(nil, fmt.Errorf("unable to retrieve asset"))
-	err = asset.CreateAsset(transactionContext, "policy1", "", "", 0, 0, 0)
+	err = asset.CreateAsset(transactionContext, "policy1", "", 0, 0, 0, "", 0)
 	require.EqualError(t, err, "failed to read from world state: unable to retrieve asset")
 }
 
@@ -104,15 +104,15 @@ func TestUpdateAsset(t *testing.T) {
 
 	chaincodeStub.GetStateReturns(bytes, nil)
 	asset := chaincode.SmartContract{}
-	err = asset.UpdateAsset(transactionContext, "", "", "", 0, 0, 0, "")
+	err = asset.UpdateAsset(transactionContext, "", "", 0, 0, 0, "", 0, "")
 	require.NoError(t, err)
 
 	chaincodeStub.GetStateReturns(nil, nil)
-	err = asset.UpdateAsset(transactionContext, "policy1", "", "", 0, 0, 0, "")
+	err = asset.UpdateAsset(transactionContext, "policy1", "", 0, 0, 0, "", 0, "")
 	require.EqualError(t, err, "the asset policy1 does not exist")
 
 	chaincodeStub.GetStateReturns(nil, fmt.Errorf("unable to retrieve asset"))
-	err = asset.UpdateAsset(transactionContext, "policy1", "", "", 0, 0, 0, "")
+	err = asset.UpdateAsset(transactionContext, "policy1", "", 0, 0, 0, "", 0, "")
 	require.EqualError(t, err, "failed to read from world state: unable to retrieve asset")
 }
 

@@ -117,7 +117,7 @@ const App = ({ params }: { params: { username: string } }) => {
 				{selectedFiles.length > 0 && (
 					<div className="mt-4">
 						<h3 className="font-medium text-lg mb-2">
-							Files Selected:
+							Arquivos selecionados:
 						</h3>
 						<ul className="list-none">
 							{selectedFiles.map((file, index) => (

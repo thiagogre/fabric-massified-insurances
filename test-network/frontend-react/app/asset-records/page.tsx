@@ -35,7 +35,6 @@ const App = () => {
 					"Varejista",
 					"300",
 					"Active",
-					"",
 				],
 			});
 
@@ -54,7 +53,6 @@ const App = () => {
 					"Varejista",
 					"300",
 					"Active",
-					"",
 				],
 			});
 
@@ -73,7 +71,6 @@ const App = () => {
 					"Varejista",
 					"300",
 					"Pending",
-					"",
 				],
 			});
 

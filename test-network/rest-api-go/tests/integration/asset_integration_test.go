@@ -90,7 +90,6 @@ func TestAssetLifecycle(t *testing.T) {
 			"CoverageDuration": 12,
 			"CoverageType":     0,
 			"CoverageValue":    5000,
-			"Evidences":        "",
 			"ID":               "policy1",
 			"Insured":          "Dono",
 			"Partner":          "Varejista",
@@ -109,7 +108,7 @@ func TestAssetLifecycle(t *testing.T) {
 			"channelid":   "mychannel",
 			"chaincodeid": "basic",
 			"function":    "updateAsset",
-			"args":        []string{"policy1", "Dono", "12", "5000", "0", "Varejista", "300", "Pending", ""},
+			"args":        []string{"policy1", "Dono", "12", "5000", "0", "Varejista", "300", "Pending"},
 		}
 
 		jsonData, err := json.Marshal(assetData)
@@ -152,7 +151,6 @@ func TestAssetLifecycle(t *testing.T) {
 			"CoverageDuration": 12,
 			"CoverageType":     0,
 			"CoverageValue":    5000,
-			"Evidences":        "",
 			"ID":               "policy1",
 			"Insured":          "Dono",
 			"Partner":          "Varejista",
@@ -261,7 +259,7 @@ func TestAssetRichQuery(t *testing.T) {
 			"channelid":   "mychannel",
 			"chaincodeid": "basic",
 			"function":    "updateAsset",
-			"args":        []string{"policy_1", "Dono", "12", "5000", "0", "Varejista", "300", "Pending", ""},
+			"args":        []string{"policy_1", "Dono", "12", "5000", "0", "Varejista", "300", "Pending"},
 		}
 
 		jsonData, err := json.Marshal(assetData)
