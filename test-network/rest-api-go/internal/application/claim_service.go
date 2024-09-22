@@ -5,7 +5,9 @@ import (
 	"mime/multipart"
 	"path/filepath"
 
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 )
 
@@ -50,6 +52,13 @@ func (s *ClaimService) GetAsset(username string) (*domain.Asset, error) {
 	return s.ClaimRepository.GetAsset(username)
 }
 
-func (s *ClaimService) UpdateAsset(asset *domain.Asset) error {
-	return s.ClaimRepository.UpdateAsset(asset)
+func (s *ClaimService) UpdateAssetClaimStatus(asset *domain.Asset, newClaimStatus string) error {
+	body := &dto.InvokeRequest{
+		ChannelID:   constants.ChannelID,
+		ChaincodeID: constants.ChaincodeID,
+		Function:    "UpdateAsset",
+		Args:        []string{asset.ID, asset.Insured, fmt.Sprintf("%d", asset.CoverageDuration), fmt.Sprintf("%d", asset.CoverageValue), fmt.Sprintf("%d", asset.CoverageType), asset.Partner, fmt.Sprintf("%d", asset.Premium), newClaimStatus},
+	}
+
+	return s.ClaimRepository.UpdateAsset(body)
 }

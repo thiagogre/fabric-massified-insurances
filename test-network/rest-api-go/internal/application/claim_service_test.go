@@ -6,8 +6,10 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
@@ -184,14 +186,20 @@ func TestUpdateAsset_Success(t *testing.T) {
 	mockRepo := mocks.NewMockClaimRepositoryInterface(ctrl)
 	service := NewClaimService(mockRepo)
 
-	asset := &domain.Asset{ID: "assetID", Insured: "testuser"}
+	asset := &domain.Asset{ID: "assetID", Insured: "testuser", CoverageValue: 0, CoverageDuration: 0, CoverageType: 0, Premium: 0, Partner: "Partner"}
+	body := &dto.InvokeRequest{
+		ChannelID:   constants.ChannelID,
+		ChaincodeID: constants.ChaincodeID,
+		Function:    "UpdateAsset",
+		Args:        []string{asset.ID, asset.Insured, fmt.Sprintf("%d", asset.CoverageDuration), fmt.Sprintf("%d", asset.CoverageValue), fmt.Sprintf("%d", asset.CoverageType), asset.Partner, fmt.Sprintf("%d", asset.Premium), "Pending"},
+	}
 
 	mockRepo.EXPECT().
-		UpdateAsset(asset).
+		UpdateAsset(body).
 		Return(nil).
 		Times(1)
 
-	err := service.UpdateAsset(asset)
+	err := service.UpdateAssetClaimStatus(asset, "Pending")
 	require.NoError(t, err)
 }
 
@@ -203,14 +211,20 @@ func TestUpdateAsset_Error(t *testing.T) {
 	mockRepo := mocks.NewMockClaimRepositoryInterface(ctrl)
 	service := NewClaimService(mockRepo)
 
-	asset := &domain.Asset{ID: "assetID", Insured: "testuser"}
+	asset := &domain.Asset{ID: "assetID", Insured: "testuser", CoverageValue: 0, CoverageDuration: 0, CoverageType: 0, Premium: 0, Partner: "Partner"}
+	body := &dto.InvokeRequest{
+		ChannelID:   constants.ChannelID,
+		ChaincodeID: constants.ChaincodeID,
+		Function:    "UpdateAsset",
+		Args:        []string{asset.ID, asset.Insured, fmt.Sprintf("%d", asset.CoverageDuration), fmt.Sprintf("%d", asset.CoverageValue), fmt.Sprintf("%d", asset.CoverageType), asset.Partner, fmt.Sprintf("%d", asset.Premium), "Pending"},
+	}
 
 	mockRepo.EXPECT().
-		UpdateAsset(asset).
+		UpdateAsset(body).
 		Return(fmt.Errorf("mock update asset error")).
 		Times(1)
 
-	err := service.UpdateAsset(asset)
+	err := service.UpdateAssetClaimStatus(asset, "Pending")
 	require.Error(t, err)
 	require.EqualError(t, err, "mock update asset error")
 }

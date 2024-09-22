@@ -120,14 +120,8 @@ func (r *ClaimRepository) GetAsset(username string) (*domain.Asset, error) {
 	return &response.Data.Docs[0], nil
 }
 
-func (r *ClaimRepository) UpdateAsset(asset *domain.Asset) error {
+func (r *ClaimRepository) UpdateAsset(body *dto.InvokeRequest) error {
 	URL := fmt.Sprintf("http://localhost%s/smartcontract/invoke", constants.ServerAddr)
-	body := dto.InvokeRequest{
-		ChannelID:   constants.ChannelID,
-		ChaincodeID: constants.ChaincodeID,
-		Function:    "UpdateAsset",
-		Args:        []string{asset.ID, asset.Insured, fmt.Sprintf("%d", asset.CoverageDuration), fmt.Sprintf("%d", asset.CoverageValue), fmt.Sprintf("%d", asset.CoverageType), asset.Partner, fmt.Sprintf("%d", asset.Premium), "Pending"},
-	}
 
 	jsonBody, err := json.Marshal(body)
 	if err != nil {

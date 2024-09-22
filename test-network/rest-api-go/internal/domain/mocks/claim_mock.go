@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	domain "github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
+	dto "github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 )
 
 // MockClaimServiceInterface is a mock of ClaimServiceInterface interface.
@@ -93,18 +94,18 @@ func (mr *MockClaimServiceInterfaceMockRecorder) StoreClaim(file, uploadDir inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreClaim", reflect.TypeOf((*MockClaimServiceInterface)(nil).StoreClaim), file, uploadDir)
 }
 
-// UpdateAsset mocks base method.
-func (m *MockClaimServiceInterface) UpdateAsset(asset *domain.Asset) error {
+// UpdateAssetClaimStatus mocks base method.
+func (m *MockClaimServiceInterface) UpdateAssetClaimStatus(asset *domain.Asset, newClaimStatus string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAsset", asset)
+	ret := m.ctrl.Call(m, "UpdateAssetClaimStatus", asset, newClaimStatus)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateAsset indicates an expected call of UpdateAsset.
-func (mr *MockClaimServiceInterfaceMockRecorder) UpdateAsset(asset interface{}) *gomock.Call {
+// UpdateAssetClaimStatus indicates an expected call of UpdateAssetClaimStatus.
+func (mr *MockClaimServiceInterfaceMockRecorder) UpdateAssetClaimStatus(asset, newClaimStatus interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimServiceInterface)(nil).UpdateAsset), asset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAssetClaimStatus", reflect.TypeOf((*MockClaimServiceInterface)(nil).UpdateAssetClaimStatus), asset, newClaimStatus)
 }
 
 // MockClaimRepositoryInterface is a mock of ClaimRepositoryInterface interface.
@@ -189,15 +190,15 @@ func (mr *MockClaimRepositoryInterfaceMockRecorder) SaveFile(file, uploadDir, fi
 }
 
 // UpdateAsset mocks base method.
-func (m *MockClaimRepositoryInterface) UpdateAsset(asset *domain.Asset) error {
+func (m *MockClaimRepositoryInterface) UpdateAsset(body *dto.InvokeRequest) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAsset", asset)
+	ret := m.ctrl.Call(m, "UpdateAsset", body)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateAsset indicates an expected call of UpdateAsset.
-func (mr *MockClaimRepositoryInterfaceMockRecorder) UpdateAsset(asset interface{}) *gomock.Call {
+func (mr *MockClaimRepositoryInterfaceMockRecorder) UpdateAsset(body interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).UpdateAsset), asset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAsset", reflect.TypeOf((*MockClaimRepositoryInterface)(nil).UpdateAsset), body)
 }

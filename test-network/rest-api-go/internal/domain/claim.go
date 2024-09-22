@@ -2,6 +2,8 @@ package domain
 
 import (
 	"mime/multipart"
+
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 )
 
 type Asset struct {
@@ -20,7 +22,7 @@ type ClaimServiceInterface interface {
 	ListPDFs(username, host string) ([]string, error)
 	IsExist(filePath string) bool
 	GetAsset(username string) (*Asset, error)
-	UpdateAsset(asset *Asset) error
+	UpdateAssetClaimStatus(asset *Asset, newClaimStatus string) error
 }
 
 type ClaimRepositoryInterface interface {
@@ -28,5 +30,5 @@ type ClaimRepositoryInterface interface {
 	ListPDFFiles(username string) ([]string, error)
 	IsFileOrDirExist(path string) bool
 	GetAsset(username string) (*Asset, error)
-	UpdateAsset(asset *Asset) error
+	UpdateAsset(body *dto.InvokeRequest) error
 }

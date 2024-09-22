@@ -86,7 +86,7 @@ func (h *ClaimHandler) Execute(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := h.ClaimService.UpdateAsset(asset); err != nil {
+	if err := h.ClaimService.UpdateAssetClaimStatus(asset, "Pending"); err != nil {
 		logger.Error("Error updating asset: " + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error updating asset: "+err.Error())
 		return
