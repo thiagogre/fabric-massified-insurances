@@ -67,10 +67,20 @@ const App = ({ params }: { params: { id: string } }) => {
 		(product) => product.id === String(insuredAsset?.CoverageType)
 	);
 
-	const finishAnalysis = (
-		result: "EvidencesRejected" | "EvidencesApproved"
-	) => {
-		router.back();
+	const finishAnalysis = async (result: boolean) => {
+		const response = await fetchAPI({
+			method: "POST",
+			endpoint: "/claim/evidence/validate",
+			bodyData: JSON.stringify({
+				username: insuredAsset.Insured,
+				isApproved: result,
+			}),
+		});
+		if (response?.success) {
+			router.back();
+		} else {
+			alert(response?.message);
+		}
 	};
 
 	useEffect(() => {
@@ -115,11 +125,7 @@ const App = ({ params }: { params: { id: string } }) => {
 					<div className="mt-6 flex">
 						<div className="flex">
 							<div className="mr-6">
-								<Button
-									onClick={() =>
-										finishAnalysis("EvidencesApproved")
-									}
-								>
+								<Button onClick={() => finishAnalysis(true)}>
 									<span className="flex items-center">
 										Aprovar evidências
 									</span>
@@ -127,9 +133,7 @@ const App = ({ params }: { params: { id: string } }) => {
 							</div>
 							<Button
 								type="secondary"
-								onClick={() =>
-									finishAnalysis("EvidencesRejected")
-								}
+								onClick={() => finishAnalysis(false)}
 							>
 								<span className="flex items-center">
 									Reprovar evidências

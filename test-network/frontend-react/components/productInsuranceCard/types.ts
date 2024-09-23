@@ -9,6 +9,12 @@ type BadgeProps = {
 	text: string;
 };
 
-type ClaimStatus = "Active" | "Pending" | "Approved" | "Rejected";
+type ClaimStatus =
+	| "Active"
+	| "Pending"
+	| "EvidencesApproved"
+	| "EvidencesRejected"
+	| "Approved"
+	| "Rejected";
 
 export type { BadgeProps, ClaimStatus, ButtonProps };

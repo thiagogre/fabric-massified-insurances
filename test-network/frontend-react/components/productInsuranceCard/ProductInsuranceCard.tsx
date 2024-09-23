@@ -20,6 +20,16 @@ const ProductInsuranceCard = (
 	const claimStatusColor = {
 		Active: { bgColor: "yellow", textColor: "black", text: "Ativo" },
 		Pending: { bgColor: "orange", textColor: "black", text: "Em Análise" },
+		EvidencesApproved: {
+			bgColor: "cyan",
+			textColor: "black",
+			text: "Evidências aprovadas",
+		},
+		EvidencesRejected: {
+			bgColor: "tomato",
+			textColor: "black",
+			text: "Evidências reprovadas",
+		},
 		Rejected: { bgColor: "red", textColor: "white", text: "Rejeitado" },
 		Approved: { bgColor: "green", textColor: "white", text: "Aprovado" },
 	};
