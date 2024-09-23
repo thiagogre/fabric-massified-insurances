@@ -10,9 +10,10 @@ const App = () => {
 	const router = useRouter();
 
 	const routes = [
-		{ route: "/login", title: "Login" },
 		{ route: "/partner", title: "Loja do Parceiro de distribuição" },
+		{ route: "/login", title: "Login" },
 		{ route: "/evidence-analysis", title: "Análise de Evidências" },
+		{ route: "/insurer/finish", title: "Aprovar/reprovar claim" },
 		{ route: "/events", title: "Events" },
 		{ route: "/asset-records", title: "Asset Records" },
 	];
