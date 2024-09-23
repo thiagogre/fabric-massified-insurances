@@ -177,3 +177,39 @@ func (h *ClaimHandler) Validate(w http.ResponseWriter, r *http.Request) {
 	logger.Success(body)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }
+
+func (h *ClaimHandler) Finish(w http.ResponseWriter, r *http.Request) {
+	logger.Info("Received a request")
+
+	var body dto.ClaimValidateRequest
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		logger.Error("Failed to parse request body" + err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to parse request body")
+		return
+	}
+	logger.Info(body)
+
+	asset, err := h.ClaimService.GetAsset(body.Username)
+	if err != nil {
+		logger.Error("Error fetching asset: " + err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Error fetching asset: "+err.Error())
+		return
+	}
+
+	var newClaimStatus string
+	if body.IsApproved {
+		newClaimStatus = "Approved"
+	} else {
+		newClaimStatus = "Rejected"
+	}
+
+	if err := h.ClaimService.UpdateAssetClaimStatus(asset, newClaimStatus); err != nil {
+		logger.Error("Error updating asset: " + err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Error updating asset: "+err.Error())
+		return
+	}
+
+	response := dto.SuccessResponse[dto.ClaimValidateRequest]{Success: true, Data: body}
+	logger.Success(body)
+	utils.SuccessResponse(w, http.StatusOK, response)
+}

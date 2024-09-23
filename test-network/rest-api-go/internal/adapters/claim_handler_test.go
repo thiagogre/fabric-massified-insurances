@@ -331,7 +331,7 @@ func TestClaimHandler_Validate_Success(t *testing.T) {
 
 	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
 	bodyBytes, _ := json.Marshal(body)
-	req := httptest.NewRequest(http.MethodPost, "/claim/validate", bytes.NewBuffer(bodyBytes))
+	req := httptest.NewRequest(http.MethodPost, "/claim/evidence/validate", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
@@ -349,7 +349,7 @@ func TestClaimHandler_Validate_ErrorFetchingAsset(t *testing.T) {
 
 	body := dto.ClaimValidateRequest{Username: "invalid_testuser", IsApproved: true}
 	bodyBytes, _ := json.Marshal(body)
-	req := httptest.NewRequest(http.MethodPost, "/claim/validate", bytes.NewBuffer(bodyBytes))
+	req := httptest.NewRequest(http.MethodPost, "/claim/evidence/validate", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
 
 	mockClaimService.EXPECT().GetAsset("invalid_testuser").Return(nil, fmt.Errorf("Asset not found")).AnyTimes()
@@ -359,7 +359,25 @@ func TestClaimHandler_Validate_ErrorFetchingAsset(t *testing.T) {
 	require.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
-func TestClaimHandler_Validate__ErrorUpdatingAsset(t *testing.T) {
+func TestClaimHandler_Validate_ErrorUpdatingAsset(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
+	bodyBytes, _ := json.Marshal(body)
+	req := httptest.NewRequest(http.MethodPost, "/claim/evidence/validate", bytes.NewBuffer(bodyBytes))
+	rec := httptest.NewRecorder()
+
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "EvidencesApproved").Return(fmt.Errorf("Error updating asset"))
+
+	claimHandler.Validate(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func TestClaimHandler_Finish_Success(t *testing.T) {
 	mockClaimService, claimHandler, ctrl := setupTest(t)
 	defer ctrl.Finish()
 
@@ -370,9 +388,43 @@ func TestClaimHandler_Validate__ErrorUpdatingAsset(t *testing.T) {
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
 	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "EvidencesApproved").Return(fmt.Errorf("Error updating asset"))
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Approved").Return(nil)
 
-	claimHandler.Validate(rec, req)
+	claimHandler.Finish(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestClaimHandler_Finish_ErrorFetchingAsset(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := dto.ClaimValidateRequest{Username: "invalid_testuser", IsApproved: true}
+	bodyBytes, _ := json.Marshal(body)
+	req := httptest.NewRequest(http.MethodPost, "/claim/finish", bytes.NewBuffer(bodyBytes))
+	rec := httptest.NewRecorder()
+
+	mockClaimService.EXPECT().GetAsset("invalid_testuser").Return(nil, fmt.Errorf("Asset not found")).AnyTimes()
+
+	claimHandler.Finish(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func TestClaimHandler_Finish_ErrorUpdatingAsset(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
+	bodyBytes, _ := json.Marshal(body)
+	req := httptest.NewRequest(http.MethodPost, "/claim/finish", bytes.NewBuffer(bodyBytes))
+	rec := httptest.NewRecorder()
+
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Approved").Return(fmt.Errorf("Error updating asset"))
+
+	claimHandler.Finish(rec, req)
 
 	require.Equal(t, http.StatusBadRequest, rec.Code)
 }

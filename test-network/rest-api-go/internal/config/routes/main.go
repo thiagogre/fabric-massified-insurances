@@ -60,6 +60,7 @@ func Serve(orgSetup org.OrgSetup) {
 	claimRoutes.HandleFunc("/evidence/{username}", claimHandler.GetPDFs).Methods("GET")
 	claimRoutes.HandleFunc("/evidence/{username}/{filename}", claimHandler.ServePDF).Methods("GET")
 	claimRoutes.HandleFunc("/evidence/validate", claimHandler.Validate).Methods("POST")
+	claimRoutes.HandleFunc("/finish", claimHandler.Finish).Methods("POST")
 
 	handler := cors.Default().Handler(router)
 	if err := http.ListenAndServe(constants.ServerAddr, handler); err != nil {
