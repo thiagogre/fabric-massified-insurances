@@ -2,7 +2,9 @@ package adapters
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -14,6 +16,7 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
@@ -320,4 +323,56 @@ func TestClaimHandler_ServePDF_FileNotFound(t *testing.T) {
 
 	require.Equal(t, http.StatusNotFound, rec.Code)
 	require.Contains(t, rec.Body.String(), "File not found")
+}
+
+func TestClaimHandler_Validate_Success(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
+	bodyBytes, _ := json.Marshal(body)
+	req := httptest.NewRequest(http.MethodPost, "/claim/validate", bytes.NewBuffer(bodyBytes))
+	rec := httptest.NewRecorder()
+
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "EvidencesApproved").Return(nil)
+
+	claimHandler.Validate(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+}
+
+func TestClaimHandler_Validate_ErrorFetchingAsset(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := dto.ClaimValidateRequest{Username: "invalid_testuser", IsApproved: true}
+	bodyBytes, _ := json.Marshal(body)
+	req := httptest.NewRequest(http.MethodPost, "/claim/validate", bytes.NewBuffer(bodyBytes))
+	rec := httptest.NewRecorder()
+
+	mockClaimService.EXPECT().GetAsset("invalid_testuser").Return(nil, fmt.Errorf("Asset not found")).AnyTimes()
+
+	claimHandler.Validate(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func TestClaimHandler_Validate__ErrorUpdatingAsset(t *testing.T) {
+	mockClaimService, claimHandler, ctrl := setupTest(t)
+	defer ctrl.Finish()
+
+	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
+	bodyBytes, _ := json.Marshal(body)
+	req := httptest.NewRequest(http.MethodPost, "/claim/validate", bytes.NewBuffer(bodyBytes))
+	rec := httptest.NewRecorder()
+
+	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
+	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "EvidencesApproved").Return(fmt.Errorf("Error updating asset"))
+
+	claimHandler.Validate(rec, req)
+
+	require.Equal(t, http.StatusBadRequest, rec.Code)
 }
