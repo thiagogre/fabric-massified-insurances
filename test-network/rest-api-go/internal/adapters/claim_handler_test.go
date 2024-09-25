@@ -16,7 +16,6 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
@@ -330,7 +329,7 @@ func TestClaimHandler_Validate_Success(t *testing.T) {
 	mockClaimService, claimHandler, ctrl := setupTest(t)
 	defer ctrl.Finish()
 
-	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
+	body := domain.ClaimValidateRequest{Username: "testuser", IsApproved: true}
 	bodyBytes, _ := json.Marshal(body)
 	req := httptest.NewRequest(http.MethodPost, "/claim/evidence/validate", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
@@ -348,7 +347,7 @@ func TestClaimHandler_Validate_ErrorFetchingAsset(t *testing.T) {
 	mockClaimService, claimHandler, ctrl := setupTest(t)
 	defer ctrl.Finish()
 
-	body := dto.ClaimValidateRequest{Username: "invalid_testuser", IsApproved: true}
+	body := domain.ClaimValidateRequest{Username: "invalid_testuser", IsApproved: true}
 	bodyBytes, _ := json.Marshal(body)
 	req := httptest.NewRequest(http.MethodPost, "/claim/evidence/validate", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
@@ -364,7 +363,7 @@ func TestClaimHandler_Validate_ErrorUpdatingAsset(t *testing.T) {
 	mockClaimService, claimHandler, ctrl := setupTest(t)
 	defer ctrl.Finish()
 
-	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
+	body := domain.ClaimValidateRequest{Username: "testuser", IsApproved: true}
 	bodyBytes, _ := json.Marshal(body)
 	req := httptest.NewRequest(http.MethodPost, "/claim/evidence/validate", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
@@ -382,7 +381,7 @@ func TestClaimHandler_Finish_Success(t *testing.T) {
 	mockClaimService, claimHandler, ctrl := setupTest(t)
 	defer ctrl.Finish()
 
-	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
+	body := domain.ClaimValidateRequest{Username: "testuser", IsApproved: true}
 	bodyBytes, _ := json.Marshal(body)
 	req := httptest.NewRequest(http.MethodPost, "/claim/validate", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
@@ -400,7 +399,7 @@ func TestClaimHandler_Finish_ErrorFetchingAsset(t *testing.T) {
 	mockClaimService, claimHandler, ctrl := setupTest(t)
 	defer ctrl.Finish()
 
-	body := dto.ClaimValidateRequest{Username: "invalid_testuser", IsApproved: true}
+	body := domain.ClaimValidateRequest{Username: "invalid_testuser", IsApproved: true}
 	bodyBytes, _ := json.Marshal(body)
 	req := httptest.NewRequest(http.MethodPost, "/claim/finish", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
@@ -416,7 +415,7 @@ func TestClaimHandler_Finish_ErrorUpdatingAsset(t *testing.T) {
 	mockClaimService, claimHandler, ctrl := setupTest(t)
 	defer ctrl.Finish()
 
-	body := dto.ClaimValidateRequest{Username: "testuser", IsApproved: true}
+	body := domain.ClaimValidateRequest{Username: "testuser", IsApproved: true}
 	bodyBytes, _ := json.Marshal(body)
 	req := httptest.NewRequest(http.MethodPost, "/claim/finish", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()

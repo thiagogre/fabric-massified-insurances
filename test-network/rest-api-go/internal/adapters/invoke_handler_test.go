@@ -14,7 +14,6 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/adapters"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
@@ -39,7 +38,7 @@ func TestInvokeHandler_Execute(t *testing.T) {
 	})
 
 	t.Run("should return 500 when ExecuteInvoke returns an error", func(t *testing.T) {
-		body := dto.InvokeRequest{
+		body := domain.InvokeRequest{
 			ChannelID:   "test-channel",
 			ChaincodeID: "test-chaincode",
 			Function:    "test-function",
@@ -59,7 +58,7 @@ func TestInvokeHandler_Execute(t *testing.T) {
 	})
 
 	t.Run("should return 500 when ReplayEvents returns an error", func(t *testing.T) {
-		body := dto.InvokeRequest{
+		body := domain.InvokeRequest{
 			ChannelID:   "test-channel",
 			ChaincodeID: "test-chaincode",
 			Function:    "test-function",
@@ -86,7 +85,7 @@ func TestInvokeHandler_Execute(t *testing.T) {
 	})
 
 	t.Run("should return 500 when HandleEvent returns an error", func(t *testing.T) {
-		body := dto.InvokeRequest{
+		body := domain.InvokeRequest{
 			ChannelID:   "test-channel",
 			ChaincodeID: "test-chaincode",
 			Function:    "test-function",
@@ -116,7 +115,7 @@ func TestInvokeHandler_Execute(t *testing.T) {
 	})
 
 	t.Run("should return 200 when request is successful", func(t *testing.T) {
-		body := dto.InvokeRequest{
+		body := domain.InvokeRequest{
 			ChannelID:   "test-channel",
 			ChaincodeID: "test-chaincode",
 			Function:    "test-function",

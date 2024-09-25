@@ -2,9 +2,12 @@ package domain
 
 import (
 	"mime/multipart"
-
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 )
+
+type ClaimValidateRequest struct {
+	Username   string `json:"username"`
+	IsApproved bool   `json:"isApproved"`
+}
 
 type Asset struct {
 	ClaimStatus      string `json:"ClaimStatus"`
@@ -30,5 +33,5 @@ type ClaimRepositoryInterface interface {
 	ListPDFFiles(username string) ([]string, error)
 	IsFileOrDirExist(path string) bool
 	GetAsset(username string, host string) (*Asset, error)
-	UpdateAsset(body *dto.InvokeRequest, host string) error
+	UpdateAsset(body *InvokeRequest, host string) error
 }

@@ -1,4 +1,4 @@
-package dto
+package domain
 
 type DocsResponse[T any] struct {
 	Docs []T `json:"docs"`

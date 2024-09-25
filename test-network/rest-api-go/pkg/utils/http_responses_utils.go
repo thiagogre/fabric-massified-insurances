@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 )
 
 // ErrorResponse sends an error response with a given status code and message.
 func ErrorResponse(w http.ResponseWriter, statusCode int, message string) {
-	Response(w, statusCode, dto.ErrorResponse{Success: false, Message: message})
+	Response(w, statusCode, domain.ErrorResponse{Success: false, Message: message})
 }
 
 // SuccessResponse sends a success response with a given status code and response payload.

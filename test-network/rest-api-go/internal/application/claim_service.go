@@ -7,7 +7,6 @@ import (
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 )
 
@@ -53,7 +52,7 @@ func (s *ClaimService) GetAsset(username, host string) (*domain.Asset, error) {
 }
 
 func (s *ClaimService) UpdateAssetClaimStatus(asset *domain.Asset, newClaimStatus string, host string) error {
-	body := &dto.InvokeRequest{
+	body := &domain.InvokeRequest{
 		ChannelID:   constants.ChannelID,
 		ChaincodeID: constants.ChaincodeID,
 		Function:    "UpdateAsset",

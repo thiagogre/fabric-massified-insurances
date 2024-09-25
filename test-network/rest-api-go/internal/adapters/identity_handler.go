@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
@@ -28,7 +27,7 @@ func (h *IdentityHandler) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.SuccessResponse[dto.IdentityResponse]{Success: true, Data: dto.IdentityResponse{Username: credentials.Username, Password: credentials.Password}}
+	response := domain.SuccessResponse[domain.IdentityResponse]{Success: true, Data: domain.IdentityResponse{Username: credentials.Username, Password: credentials.Password}}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }

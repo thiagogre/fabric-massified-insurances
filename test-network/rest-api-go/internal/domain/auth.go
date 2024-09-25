@@ -1,5 +1,10 @@
 package domain
 
+type AuthRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type User struct {
 	Id    string
 	Token string

@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
@@ -27,7 +26,7 @@ func (h *EventHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.QuerySuccessResponse{Success: true, Data: dto.DocsResponse[domain.Event]{Docs: events}}
+	response := domain.QuerySuccessResponse{Success: true, Data: domain.DocsResponse[domain.Event]{Docs: events}}
 
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)

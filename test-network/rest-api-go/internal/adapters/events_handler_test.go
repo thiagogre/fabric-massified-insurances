@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
@@ -38,7 +37,7 @@ func TestGetAll_GetEvents_Success(t *testing.T) {
 	handler.GetAll(rec, req)
 
 	require.Equal(t, http.StatusOK, rec.Code)
-	expected := dto.QuerySuccessResponse{Success: true, Data: dto.DocsResponse[domain.Event]{Docs: events}}
+	expected := domain.QuerySuccessResponse{Success: true, Data: domain.DocsResponse[domain.Event]{Docs: events}}
 	utils.AssertJSONResponse(t, rec.Body.String(), expected)
 }
 

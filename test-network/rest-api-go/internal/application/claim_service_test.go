@@ -9,7 +9,6 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
@@ -187,7 +186,7 @@ func TestUpdateAsset_Success(t *testing.T) {
 	service := NewClaimService(mockRepo)
 
 	asset := &domain.Asset{ID: "assetID", Insured: "testuser", CoverageValue: 0, CoverageDuration: 0, CoverageType: 0, Premium: 0, Partner: "Partner"}
-	body := &dto.InvokeRequest{
+	body := &domain.InvokeRequest{
 		ChannelID:   constants.ChannelID,
 		ChaincodeID: constants.ChaincodeID,
 		Function:    "UpdateAsset",
@@ -212,7 +211,7 @@ func TestUpdateAsset_Error(t *testing.T) {
 	service := NewClaimService(mockRepo)
 
 	asset := &domain.Asset{ID: "assetID", Insured: "testuser", CoverageValue: 0, CoverageDuration: 0, CoverageType: 0, Premium: 0, Partner: "Partner"}
-	body := &dto.InvokeRequest{
+	body := &domain.InvokeRequest{
 		ChannelID:   constants.ChannelID,
 		ChaincodeID: constants.ChaincodeID,
 		Function:    "UpdateAsset",

@@ -8,8 +8,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
@@ -39,7 +39,7 @@ func TestExecute_ExecuteQuery_Success(t *testing.T) {
 	handler.Execute(rec, req)
 
 	require.Equal(t, http.StatusOK, rec.Code)
-	expected := dto.QuerySuccessResponse{Success: true, Data: []byte(`{"result":"success"}`)}
+	expected := domain.QuerySuccessResponse{Success: true, Data: []byte(`{"result":"success"}`)}
 	utils.AssertJSONResponse(t, rec.Body.String(), expected)
 }
 

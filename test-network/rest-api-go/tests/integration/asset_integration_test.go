@@ -10,8 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 )
 
 func TestAssetLifecycle(t *testing.T) {
@@ -31,7 +30,7 @@ func TestAssetLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		defer resp.Body.Close()
 
-		expectedResponse := dto.QuerySuccessResponse{Success: true, Data: map[string]interface{}{"docs": []interface{}{}}}
+		expectedResponse := domain.QuerySuccessResponse{Success: true, Data: map[string]interface{}{"docs": []interface{}{}}}
 		response, err := json.Marshal(expectedResponse)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -61,7 +60,7 @@ func TestAssetLifecycle(t *testing.T) {
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var response dto.InvokeSuccessResponse
+		var response domain.InvokeSuccessResponse
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		require.NoError(t, err)
 		require.True(t, response.Success)
@@ -84,7 +83,7 @@ func TestAssetLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		defer resp.Body.Close()
 
-		expectedResponse := dto.QuerySuccessResponse{Success: true, Data: map[string]interface{}{
+		expectedResponse := domain.QuerySuccessResponse{Success: true, Data: map[string]interface{}{
 			"ClaimStatus":      "Active",
 			"CoverageDuration": 12,
 			"CoverageType":     0,
@@ -122,7 +121,7 @@ func TestAssetLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var response dto.InvokeSuccessResponse
+		var response domain.InvokeSuccessResponse
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		require.NoError(t, err)
 		require.True(t, response.Success)
@@ -145,7 +144,7 @@ func TestAssetLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		defer resp.Body.Close()
 
-		expectedResponse := dto.QuerySuccessResponse{Success: true, Data: map[string]interface{}{
+		expectedResponse := domain.QuerySuccessResponse{Success: true, Data: map[string]interface{}{
 			"ClaimStatus":      "Pending",
 			"CoverageDuration": 12,
 			"CoverageType":     0,
@@ -183,7 +182,7 @@ func TestAssetLifecycle(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var response dto.InvokeSuccessResponse
+		var response domain.InvokeSuccessResponse
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		require.NoError(t, err)
 		require.True(t, response.Success)
@@ -242,7 +241,7 @@ func TestAssetRichQuery(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, http.StatusOK, resp.StatusCode)
 
-			var response dto.InvokeSuccessResponse
+			var response domain.InvokeSuccessResponse
 			err = json.NewDecoder(resp.Body).Decode(&response)
 			require.NoError(t, err)
 			require.True(t, response.Success)
@@ -273,7 +272,7 @@ func TestAssetRichQuery(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var response dto.InvokeSuccessResponse
+		var response domain.InvokeSuccessResponse
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		require.NoError(t, err)
 		require.True(t, response.Success)

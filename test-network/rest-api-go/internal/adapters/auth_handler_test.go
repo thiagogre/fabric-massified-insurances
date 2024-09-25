@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
@@ -25,7 +24,7 @@ func TestExecute_AuthenticateUser_Success(t *testing.T) {
 	mockAuthService := mocks.NewMockAuthServiceInterface(ctrl)
 	handler := NewAuthHandler(mockAuthService)
 
-	requestBody := dto.AuthRequest{
+	requestBody := domain.AuthRequest{
 		Username: "testuser",
 		Password: "testpassword",
 	}
@@ -41,7 +40,7 @@ func TestExecute_AuthenticateUser_Success(t *testing.T) {
 	handler.Execute(rec, req)
 
 	require.Equal(t, http.StatusOK, rec.Code)
-	expected := dto.SuccessResponse[dto.AuthRequest]{Success: true, Data: requestBody}
+	expected := domain.SuccessResponse[domain.AuthRequest]{Success: true, Data: requestBody}
 	utils.AssertJSONResponse(t, rec.Body.String(), expected)
 }
 
@@ -70,7 +69,7 @@ func TestExecute_AuthenticateUser_Fail_UserNotFound(t *testing.T) {
 	mockAuthService := mocks.NewMockAuthServiceInterface(ctrl)
 	handler := NewAuthHandler(mockAuthService)
 
-	requestBody := dto.AuthRequest{
+	requestBody := domain.AuthRequest{
 		Username: "testuser",
 		Password: "testpassword",
 	}
@@ -97,7 +96,7 @@ func TestExecute_AuthenticateUser_Fail_IncorrectPassword(t *testing.T) {
 	mockAuthService := mocks.NewMockAuthServiceInterface(ctrl)
 	handler := NewAuthHandler(mockAuthService)
 
-	requestBody := dto.AuthRequest{
+	requestBody := domain.AuthRequest{
 		Username: "testuser",
 		Password: "testpassword",
 	}

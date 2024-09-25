@@ -13,7 +13,6 @@ import (
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 )
 
@@ -105,7 +104,7 @@ func (r *ClaimRepository) GetAsset(username string, host string) (*domain.Asset,
 		return nil, fmt.Errorf("API request failed with status: %d", resp.StatusCode)
 	}
 
-	var response dto.SuccessResponse[dto.DocsResponse[domain.Asset]]
+	var response domain.SuccessResponse[domain.DocsResponse[domain.Asset]]
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		logger.Error("Failed to decode response: " + err.Error())
@@ -120,7 +119,7 @@ func (r *ClaimRepository) GetAsset(username string, host string) (*domain.Asset,
 	return &response.Data.Docs[0], nil
 }
 
-func (r *ClaimRepository) UpdateAsset(body *dto.InvokeRequest, host string) error {
+func (r *ClaimRepository) UpdateAsset(body *domain.InvokeRequest, host string) error {
 	url := fmt.Sprintf("%s/smartcontract/invoke", host)
 
 	jsonBody, err := json.Marshal(body)

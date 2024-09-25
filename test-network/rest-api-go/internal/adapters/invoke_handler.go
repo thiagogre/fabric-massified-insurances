@@ -7,7 +7,6 @@ import (
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
@@ -24,7 +23,7 @@ func NewInvokeHandler(invokeService domain.InvokeInterface, eventService domain.
 func (h *InvokeHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
-	var body dto.InvokeRequest
+	var body domain.InvokeRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		logger.Error("Failed to parse request body" + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to parse request body")
@@ -56,7 +55,7 @@ func (h *InvokeHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info("*** Finish chaincode event replay ***")
 
-	response := dto.InvokeSuccessResponse{Success: true, Data: data}
+	response := domain.InvokeSuccessResponse{Success: true, Data: data}
 	logger.Success(data)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }

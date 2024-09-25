@@ -10,7 +10,6 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	domain "github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
-	dto "github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 )
 
 // MockClaimServiceInterface is a mock of ClaimServiceInterface interface.
@@ -190,7 +189,7 @@ func (mr *MockClaimRepositoryInterfaceMockRecorder) SaveFile(file, uploadDir, fi
 }
 
 // UpdateAsset mocks base method.
-func (m *MockClaimRepositoryInterface) UpdateAsset(body *dto.InvokeRequest, host string) error {
+func (m *MockClaimRepositoryInterface) UpdateAsset(body *domain.InvokeRequest, host string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAsset", body, host)
 	ret0, _ := ret[0].(error)

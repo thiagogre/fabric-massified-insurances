@@ -3,7 +3,7 @@ package adapters
 import (
 	"net/http"
 
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
@@ -23,7 +23,7 @@ func (h *SmartContractHandler) Info(w http.ResponseWriter, r *http.Request) {
 		"/smartcontract/invoke",
 	}
 
-	response := dto.SuccessResponse[[]string]{Success: true, Data: routes}
+	response := domain.SuccessResponse[[]string]{Success: true, Data: routes}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }

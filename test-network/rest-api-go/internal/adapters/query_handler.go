@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
@@ -35,7 +34,7 @@ func (h *QueryHandler) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.QuerySuccessResponse{Success: true, Data: data}
+	response := domain.QuerySuccessResponse{Success: true, Data: data}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }

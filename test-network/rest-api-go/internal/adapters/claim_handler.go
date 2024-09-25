@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/logger"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 )
@@ -99,7 +98,7 @@ func (h *ClaimHandler) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.SuccessResponse[string]{Success: true, Data: "Claim in analysis"}
+	response := domain.SuccessResponse[string]{Success: true, Data: "Claim in analysis"}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }
@@ -117,7 +116,7 @@ func (h *ClaimHandler) GetPDFs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.SuccessResponse[[]string]{Success: true, Data: pdfURLs}
+	response := domain.SuccessResponse[[]string]{Success: true, Data: pdfURLs}
 	logger.Success(response)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }
@@ -145,7 +144,7 @@ func (h *ClaimHandler) ServePDF(w http.ResponseWriter, r *http.Request) {
 func (h *ClaimHandler) Validate(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
-	var body dto.ClaimValidateRequest
+	var body domain.ClaimValidateRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		logger.Error("Failed to parse request body" + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to parse request body")
@@ -173,7 +172,7 @@ func (h *ClaimHandler) Validate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.SuccessResponse[dto.ClaimValidateRequest]{Success: true, Data: body}
+	response := domain.SuccessResponse[domain.ClaimValidateRequest]{Success: true, Data: body}
 	logger.Success(body)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }
@@ -181,7 +180,7 @@ func (h *ClaimHandler) Validate(w http.ResponseWriter, r *http.Request) {
 func (h *ClaimHandler) Finish(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Received a request")
 
-	var body dto.ClaimValidateRequest
+	var body domain.ClaimValidateRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		logger.Error("Failed to parse request body" + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to parse request body")
@@ -209,7 +208,7 @@ func (h *ClaimHandler) Finish(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := dto.SuccessResponse[dto.ClaimValidateRequest]{Success: true, Data: body}
+	response := domain.SuccessResponse[domain.ClaimValidateRequest]{Success: true, Data: body}
 	logger.Success(body)
 	utils.SuccessResponse(w, http.StatusOK, response)
 }
