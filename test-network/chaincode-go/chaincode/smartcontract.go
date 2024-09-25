@@ -87,7 +87,7 @@ func (s *SmartContract) readState(ctx contractapi.TransactionContextInterface, i
 
 // CreateAsset issues a new insurance policy asset to the world state with given details.
 func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, insured string, coverageDuration int, converageValue int, coverageType int, partner string, premium int) error {
-	// if err := validateABAC(ctx, []string{"abac.partner"}); err != nil {
+	// if err := validateABAC(ctx, []string{"partner"}); err != nil {
 	// 	return err
 	// }
 
@@ -346,7 +346,7 @@ func (s *SmartContract) getSubmittingClientIdentity(ctx contractapi.TransactionC
 func validateABAC(ctx contractapi.TransactionContextInterface, roles []string) error {
 	authorized := false
 	for _, role := range roles {
-		err := ctx.GetClientIdentity().AssertAttributeValue(role, "true")
+		err := ctx.GetClientIdentity().AssertAttributeValue("abac.role", role)
 		if err == nil {
 			authorized = true
 			break
