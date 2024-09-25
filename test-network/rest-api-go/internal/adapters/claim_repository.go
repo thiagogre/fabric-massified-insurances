@@ -84,10 +84,10 @@ func (r *ClaimRepository) ListPDFFiles(username string) ([]string, error) {
 	return pdfFiles, nil
 }
 
-func (r *ClaimRepository) GetAsset(username string) (*domain.Asset, error) {
+func (r *ClaimRepository) GetAsset(username string, host string) (*domain.Asset, error) {
 	URL := fmt.Sprintf(
-		"http://localhost%s/smartcontract/query?channelid=%s&chaincodeid=%s&function=GetAssetsByRichQuery&args=%s",
-		constants.ServerAddr,
+		"%s/smartcontract/query?channelid=%s&chaincodeid=%s&function=GetAssetsByRichQuery&args=%s",
+		host,
 		constants.ChannelID,
 		constants.ChaincodeID,
 		fmt.Sprintf(`{"selector":{"Insured":"%s"}}`, username),
@@ -120,8 +120,8 @@ func (r *ClaimRepository) GetAsset(username string) (*domain.Asset, error) {
 	return &response.Data.Docs[0], nil
 }
 
-func (r *ClaimRepository) UpdateAsset(body *dto.InvokeRequest) error {
-	URL := fmt.Sprintf("http://localhost%s/smartcontract/invoke", constants.ServerAddr)
+func (r *ClaimRepository) UpdateAsset(body *dto.InvokeRequest, host string) error {
+	url := fmt.Sprintf("%s/smartcontract/invoke", host)
 
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
@@ -129,7 +129,7 @@ func (r *ClaimRepository) UpdateAsset(body *dto.InvokeRequest) error {
 		return err
 	}
 
-	resp, err := http.Post(URL, "application/json", bytes.NewBuffer(jsonBody))
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonBody))
 	if err != nil {
 		logger.Error("Failed to call API: " + err.Error())
 		return err

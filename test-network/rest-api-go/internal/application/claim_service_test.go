@@ -148,11 +148,11 @@ func TestGetAsset_Success(t *testing.T) {
 	expectedAsset := &domain.Asset{ID: "assetID", Insured: username}
 
 	mockRepo.EXPECT().
-		GetAsset(username).
+		GetAsset(username, "").
 		Return(expectedAsset, nil).
 		Times(1)
 
-	asset, err := service.GetAsset(username)
+	asset, err := service.GetAsset(username, "")
 	require.NoError(t, err)
 	require.Equal(t, expectedAsset, asset)
 }
@@ -168,11 +168,11 @@ func TestGetAsset_Error(t *testing.T) {
 	username := "testuser"
 
 	mockRepo.EXPECT().
-		GetAsset(username).
+		GetAsset(username, "").
 		Return(nil, fmt.Errorf("mock error fetching asset")).
 		Times(1)
 
-	asset, err := service.GetAsset(username)
+	asset, err := service.GetAsset(username, "")
 	require.Error(t, err)
 	require.Nil(t, asset)
 	require.EqualError(t, err, "mock error fetching asset")
@@ -195,11 +195,11 @@ func TestUpdateAsset_Success(t *testing.T) {
 	}
 
 	mockRepo.EXPECT().
-		UpdateAsset(body).
+		UpdateAsset(body, "").
 		Return(nil).
 		Times(1)
 
-	err := service.UpdateAssetClaimStatus(asset, "Pending")
+	err := service.UpdateAssetClaimStatus(asset, "Pending", "")
 	require.NoError(t, err)
 }
 
@@ -220,11 +220,11 @@ func TestUpdateAsset_Error(t *testing.T) {
 	}
 
 	mockRepo.EXPECT().
-		UpdateAsset(body).
+		UpdateAsset(body, "").
 		Return(fmt.Errorf("mock update asset error")).
 		Times(1)
 
-	err := service.UpdateAssetClaimStatus(asset, "Pending")
+	err := service.UpdateAssetClaimStatus(asset, "Pending", "")
 	require.Error(t, err)
 	require.EqualError(t, err, "mock update asset error")
 }

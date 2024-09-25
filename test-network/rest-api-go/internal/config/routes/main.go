@@ -15,7 +15,7 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/org"
 )
 
-func Serve(orgSetup org.OrgSetup) {
+func Serve(orgSetup org.OrgSetup, port int) {
 	router := mux.NewRouter()
 
 	database, err := db.NewDatabase(constants.DBType, constants.DBPath)
@@ -63,9 +63,10 @@ func Serve(orgSetup org.OrgSetup) {
 	claimRoutes.HandleFunc("/finish", claimHandler.Finish).Methods("POST")
 
 	handler := cors.Default().Handler(router)
-	if err := http.ListenAndServe(constants.ServerAddr, handler); err != nil {
+	logger.Info(fmt.Sprintf("Listening: (http://localhost:%d)", port))
+
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), handler); err != nil {
 		logger.Error(err.Error())
 	}
 
-	logger.Info(fmt.Sprintf("Listening: (http://localhost%s)", constants.ServerAddr))
 }

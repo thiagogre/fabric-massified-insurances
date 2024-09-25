@@ -17,6 +17,7 @@ import (
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/domain/mocks"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
+	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/pkg/utils"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/tests"
 )
 
@@ -56,9 +57,9 @@ func TestClaimHandler_Execute_SuccessfulUpload(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil).AnyTimes()
 	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(nil)
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending").Return(nil)
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending", gomock.Any()).Return(nil)
 
 	claimHandler.Execute(rec, req)
 
@@ -123,8 +124,8 @@ func TestClaimHandler_Execute_FileTooLarge(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending").Return(nil)
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending", gomock.Any()).Return(nil)
 
 	claimHandler.Execute(rec, req)
 
@@ -150,8 +151,8 @@ func TestClaimHandler_Execute_InvalidFileType(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending").Return(nil)
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending", gomock.Any()).Return(nil)
 
 	claimHandler.Execute(rec, req)
 
@@ -176,7 +177,7 @@ func TestClaimHandler_Execute_ErrorFetchingAsset(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	rec := httptest.NewRecorder()
 
-	mockClaimService.EXPECT().GetAsset("testuser").Return(nil, errors.New("failed to fetch asset"))
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(nil, errors.New("failed to fetch asset"))
 
 	claimHandler.Execute(rec, req)
 
@@ -202,9 +203,9 @@ func TestClaimHandler_Execute_ErrorSavingFile(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil)
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil)
 	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(errors.New("unable to save file"))
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending").Return(nil)
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending", gomock.Any()).Return(nil)
 
 	claimHandler.Execute(rec, req)
 
@@ -230,9 +231,9 @@ func TestClaimHandler_Execute_ErrorUpdatingAsset(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil)
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil)
 	mockClaimService.EXPECT().StoreClaim(gomock.Any(), "./uploads/testuser").Return(nil)
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending").Return(errors.New("failed to update asset"))
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Pending", gomock.Any()).Return(errors.New("failed to update asset"))
 
 	claimHandler.Execute(rec, req)
 
@@ -250,7 +251,7 @@ func TestClaimHandler_GetPDFs_Success(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	pdfURLs := []string{"http://localhost/uploads/testuser/file1.pdf", "http://localhost/uploads/testuser/file2.pdf"}
-	mockClaimService.EXPECT().ListPDFs("testuser", req.Host).Return(pdfURLs, nil)
+	mockClaimService.EXPECT().ListPDFs("testuser", utils.GetFullHostURL(req)).Return(pdfURLs, nil)
 
 	router.ServeHTTP(rec, req)
 
@@ -268,7 +269,7 @@ func TestClaimHandler_GetPDFs_ErrorListingPDFs(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/claim/evidence/testuser", nil)
 	rec := httptest.NewRecorder()
 
-	mockClaimService.EXPECT().ListPDFs("testuser", req.Host).Return(nil, errors.New("failed to list PDFs"))
+	mockClaimService.EXPECT().ListPDFs("testuser", utils.GetFullHostURL(req)).Return(nil, errors.New("failed to list PDFs"))
 
 	router.ServeHTTP(rec, req)
 
@@ -285,7 +286,7 @@ func TestClaimHandler_GetPDFs_NoPDFsFound(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/claim/evidence/testuser", nil)
 	rec := httptest.NewRecorder()
 
-	mockClaimService.EXPECT().ListPDFs("testuser", req.Host).Return([]string{}, nil)
+	mockClaimService.EXPECT().ListPDFs("testuser", utils.GetFullHostURL(req)).Return([]string{}, nil)
 
 	router.ServeHTTP(rec, req)
 
@@ -335,8 +336,8 @@ func TestClaimHandler_Validate_Success(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "EvidencesApproved").Return(nil)
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "EvidencesApproved", gomock.Any()).Return(nil)
 
 	claimHandler.Validate(rec, req)
 
@@ -352,7 +353,7 @@ func TestClaimHandler_Validate_ErrorFetchingAsset(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/claim/evidence/validate", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
 
-	mockClaimService.EXPECT().GetAsset("invalid_testuser").Return(nil, fmt.Errorf("Asset not found")).AnyTimes()
+	mockClaimService.EXPECT().GetAsset("invalid_testuser", utils.GetFullHostURL(req)).Return(nil, fmt.Errorf("Asset not found")).AnyTimes()
 
 	claimHandler.Validate(rec, req)
 
@@ -369,8 +370,8 @@ func TestClaimHandler_Validate_ErrorUpdatingAsset(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "EvidencesApproved").Return(fmt.Errorf("Error updating asset"))
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "EvidencesApproved", gomock.Any()).Return(fmt.Errorf("Error updating asset"))
 
 	claimHandler.Validate(rec, req)
 
@@ -387,8 +388,8 @@ func TestClaimHandler_Finish_Success(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Approved").Return(nil)
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Approved", gomock.Any()).Return(nil)
 
 	claimHandler.Finish(rec, req)
 
@@ -404,7 +405,7 @@ func TestClaimHandler_Finish_ErrorFetchingAsset(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/claim/finish", bytes.NewBuffer(bodyBytes))
 	rec := httptest.NewRecorder()
 
-	mockClaimService.EXPECT().GetAsset("invalid_testuser").Return(nil, fmt.Errorf("Asset not found")).AnyTimes()
+	mockClaimService.EXPECT().GetAsset("invalid_testuser", utils.GetFullHostURL(req)).Return(nil, fmt.Errorf("Asset not found")).AnyTimes()
 
 	claimHandler.Finish(rec, req)
 
@@ -421,8 +422,8 @@ func TestClaimHandler_Finish_ErrorUpdatingAsset(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	mockAsset := &domain.Asset{ID: "123", Insured: "testuser"}
-	mockClaimService.EXPECT().GetAsset("testuser").Return(mockAsset, nil).AnyTimes()
-	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Approved").Return(fmt.Errorf("Error updating asset"))
+	mockClaimService.EXPECT().GetAsset("testuser", utils.GetFullHostURL(req)).Return(mockAsset, nil).AnyTimes()
+	mockClaimService.EXPECT().UpdateAssetClaimStatus(gomock.Any(), "Approved", gomock.Any()).Return(fmt.Errorf("Error updating asset"))
 
 	claimHandler.Finish(rec, req)
 

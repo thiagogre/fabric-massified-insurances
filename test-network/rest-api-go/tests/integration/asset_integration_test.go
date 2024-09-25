@@ -11,12 +11,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/constants"
 	"github.com/thiagogre/fabric-massified-insurances/test-network/rest-api-go/internal/dto"
 )
 
 func TestAssetLifecycle(t *testing.T) {
-	baseURL := fmt.Sprintf("http://localhost%s/smartcontract", constants.ServerAddr)
+	baseURL := "http://localhost:3001/smartcontract"
 
 	// Step 1: Query the Ledger (Initial State)
 	t.Run("Initial Query", func(t *testing.T) {
@@ -213,7 +212,7 @@ func TestAssetLifecycle(t *testing.T) {
 }
 
 func TestAssetRichQuery(t *testing.T) {
-	baseURL := fmt.Sprintf("http://localhost%s/smartcontract", constants.ServerAddr)
+	baseURL := "http://localhost:3001/smartcontract"
 	httpClient := &http.Client{} // Reuse the HTTP client
 
 	var assets []map[string]interface{}

@@ -50,7 +50,7 @@ func (h *ClaimHandler) Execute(w http.ResponseWriter, r *http.Request) {
 
 	uploadDir := constants.DefaultUploadDir + "/" + username
 
-	asset, err := h.ClaimService.GetAsset(username)
+	asset, err := h.ClaimService.GetAsset(username, utils.GetFullHostURL(r))
 	if err != nil {
 		logger.Error("Error fetching asset: " + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error fetching asset: "+err.Error())
@@ -87,7 +87,7 @@ func (h *ClaimHandler) Execute(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := h.ClaimService.UpdateAssetClaimStatus(asset, "Pending"); err != nil {
+	if err := h.ClaimService.UpdateAssetClaimStatus(asset, "Pending", utils.GetFullHostURL(r)); err != nil {
 		logger.Error("Error updating asset: " + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error updating asset: "+err.Error())
 		return
@@ -110,7 +110,7 @@ func (h *ClaimHandler) GetPDFs(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"]
 
-	pdfURLs, err := h.ClaimService.ListPDFs(username, r.Host)
+	pdfURLs, err := h.ClaimService.ListPDFs(username, utils.GetFullHostURL(r))
 	if err != nil {
 		logger.Error("Error listing PDFs: " + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error listing PDFs: "+err.Error())
@@ -153,7 +153,7 @@ func (h *ClaimHandler) Validate(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info(body)
 
-	asset, err := h.ClaimService.GetAsset(body.Username)
+	asset, err := h.ClaimService.GetAsset(body.Username, utils.GetFullHostURL(r))
 	if err != nil {
 		logger.Error("Error fetching asset: " + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error fetching asset: "+err.Error())
@@ -167,7 +167,7 @@ func (h *ClaimHandler) Validate(w http.ResponseWriter, r *http.Request) {
 		newClaimStatus = "EvidencesRejected"
 	}
 
-	if err := h.ClaimService.UpdateAssetClaimStatus(asset, newClaimStatus); err != nil {
+	if err := h.ClaimService.UpdateAssetClaimStatus(asset, newClaimStatus, utils.GetFullHostURL(r)); err != nil {
 		logger.Error("Error updating asset: " + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error updating asset: "+err.Error())
 		return
@@ -189,7 +189,7 @@ func (h *ClaimHandler) Finish(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info(body)
 
-	asset, err := h.ClaimService.GetAsset(body.Username)
+	asset, err := h.ClaimService.GetAsset(body.Username, utils.GetFullHostURL(r))
 	if err != nil {
 		logger.Error("Error fetching asset: " + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error fetching asset: "+err.Error())
@@ -203,7 +203,7 @@ func (h *ClaimHandler) Finish(w http.ResponseWriter, r *http.Request) {
 		newClaimStatus = "Rejected"
 	}
 
-	if err := h.ClaimService.UpdateAssetClaimStatus(asset, newClaimStatus); err != nil {
+	if err := h.ClaimService.UpdateAssetClaimStatus(asset, newClaimStatus, utils.GetFullHostURL(r)); err != nil {
 		logger.Error("Error updating asset: " + err.Error())
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error updating asset: "+err.Error())
 		return

@@ -21,14 +21,14 @@ type ClaimServiceInterface interface {
 	StoreClaim(file *multipart.FileHeader, uploadDir string) error
 	ListPDFs(username, host string) ([]string, error)
 	IsExist(filePath string) bool
-	GetAsset(username string) (*Asset, error)
-	UpdateAssetClaimStatus(asset *Asset, newClaimStatus string) error
+	GetAsset(username string, host string) (*Asset, error)
+	UpdateAssetClaimStatus(asset *Asset, newClaimStatus string, host string) error
 }
 
 type ClaimRepositoryInterface interface {
 	SaveFile(file *multipart.FileHeader, uploadDir, filename string) error
 	ListPDFFiles(username string) ([]string, error)
 	IsFileOrDirExist(path string) bool
-	GetAsset(username string) (*Asset, error)
-	UpdateAsset(body *dto.InvokeRequest) error
+	GetAsset(username string, host string) (*Asset, error)
+	UpdateAsset(body *dto.InvokeRequest, host string) error
 }

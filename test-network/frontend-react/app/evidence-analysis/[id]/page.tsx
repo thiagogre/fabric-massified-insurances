@@ -41,7 +41,7 @@ const EvidencesPDFs = ({ insuredAsset }: any) => {
 						{Object.entries(urls).map(([filename, url]) => (
 							<li key={url as string}>
 								<a
-									href={("http://" + url) as string}
+									href={url as string}
 									className="text-blue-500 hover:underline"
 									target="_blank"
 									rel="noopener noreferrer"
