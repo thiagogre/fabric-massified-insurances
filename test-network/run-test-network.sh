@@ -81,7 +81,32 @@ run_command "./getEntities.sh org1"
 run_command "./getEntities.sh org2"
 run_command "./getEntities.sh org3"
 
-run_command_in_new_tab "cd rest-api-go && go run main.go" "Rest API"
+run_command_in_new_tab "cd rest-api-go && go run main.go \
+                                            -orgName="Org1" \
+                                            -mspID="Org1MSP" \
+                                            -certPath="../organizations/peerOrganizations/org1.example.com/users/ClaimAnalyst@org1.example.com/msp/signcerts/cert.pem" \
+                                            -keyPath="../organizations/peerOrganizations/org1.example.com/users/ClaimAnalyst@org1.example.com/msp/keystore/" \
+                                            -tlsCertPath="../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" \
+                                            -peerEndpoint="dns:///localhost:7051" -gatewayPeer="peer0.org1.example.com" \
+                                            -port=3001" "BE Insurer"
+
+run_command_in_new_tab "cd rest-api-go && go run main.go \
+                                            -orgName="Org2" \
+                                            -mspID="Org2MSP" \
+                                            -certPath="../organizations/peerOrganizations/org2.example.com/users/Partner@org2.example.com/msp/signcerts/cert.pem" \
+                                            -keyPath="../organizations/peerOrganizations/org2.example.com/users/Partner@org2.example.com/msp/keystore/" \
+                                            -tlsCertPath="../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" \
+                                            -peerEndpoint="dns:///localhost:9051" -gatewayPeer="peer0.org2.example.com" \
+                                            -port=3002" "BE Partner"
+
+run_command_in_new_tab "cd rest-api-go && go run main.go \
+                                            -orgName="Org3" \
+                                            -mspID="Org3MSP" \
+                                            -certPath="../organizations/peerOrganizations/org3.example.com/users/EvidenceAnalyst@org3.example.com/msp/signcerts/cert.pem" \
+                                            -keyPath="../organizations/peerOrganizations/org3.example.com/users/EvidenceAnalyst@org3.example.com/msp/keystore/" \
+                                            -tlsCertPath="../organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt" \
+                                            -peerEndpoint="dns:///localhost:11051" -gatewayPeer="peer0.org3.example.com" \
+                                            -port=3003" "BE EvidenceAnalyst"
 
 run_command_in_new_tab "cd frontend-react && yarn dev" "Frontend"
 
