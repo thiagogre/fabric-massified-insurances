@@ -8,9 +8,19 @@ Estamos pensando sobre o armazenamento de dados sensíveis na blockchain.
 
 -   Em primeiro lugar, no escopo específico deste trabalho: seguro massificados, precisamos armazenar dados do usuário? Essa dúvida surge, pois os seguros massificados não dependem de uma análise individualizada do segurado, então não estamos enxergando a necessidade de salvar esses dados. Os dados do segurado são importantes durante a etapa de análise de evidências, para validar a ocorrência do sinistro.
 
--   Dados do segurado poderiam ser obtidos através da plataforma do parceiro de negócio (OFF-CHAIN), visto que esse intermediário que fará a oferta do seguro ao segurado? `R: Nesse caso, a nossa PoC só armazenaria o contrato de seguro, incluindo todas etapas do seu lifecycle. Então a nossa proposta de centralização da informação entre os participantes se enfraqueceria.`
+-   Dados do segurado poderiam ser obtidos através da plataforma do parceiro de negócio (OFF-CHAIN), visto que esse intermediário que fará a oferta do seguro ao segurado? `R: Nesse caso, a nossa PoC só armazenaria o contrato de seguro, incluindo todas etapas do seu lifecycle.`
 
--   Se tratando de uma solução blockchain seria viável o segurado ser o portador das credenciais geradas, não importando o CPF em posse delas? Similar ao portador das seeds em criptomoedas. No caso, salvariamos o hash das seeds no contrato para relacionamento com o segurado portador delas.
+-   Se tratando de uma solução blockchain seria viável o segurado ser o portador das credenciais geradas, não importando o CPF em posse delas? Similar ao portador das seeds em criptomoedas. No caso, salvariamos o hash das seeds no contrato para relacionamento com o segurado portador delas. Com isso seria possível confirmar que o acionamento do seguro foi feito pelo segurado:
+
+```
+contract.Insured = "8a0322976c715fc765487ca0ce6837bdd050634bddafba9f61341e394b286906"
+
+body = {
+    InsuredHash: sha256(insuredSeed)
+}
+
+compare => contract.Insured == body.InsuredHash
+```
 
 -   A autenticação do segurado não é feita ON-CHAIN, mas sim OFF-CHAIN. Ou seja, para que o smart contract de acionamento do seguro seja invocado o segurado precisa se autenticar na plataforma da seguradora.
 
