@@ -34,20 +34,21 @@ const App = ({ params }: { params: { id: string } }) => {
 	const confirm = async () => {
 		setBtnLoading(true);
 
-		const response = await fetchAPI({
+		const identityResponse = await fetchAPI({
 			method: "POST",
 			endpoint: "/identity",
 			bodyData: JSON.stringify({}),
 		});
-		if (response?.success && response?.data) {
+		if (identityResponse?.success && identityResponse?.data) {
 			const uniqueID = String(uniqueId());
-			await invoke({
+
+			const smartcontractResponse = await invoke({
 				channelid: "mychannel",
 				chaincodeid: "basic",
 				function: "CreateAsset",
 				args: [
 					uniqueID,
-					response.data.username,
+					identityResponse.data.username,
 					String(product.insurance?.coverageDuration),
 					String(product.insurance?.coveredValue),
 					String(id),
@@ -55,11 +56,14 @@ const App = ({ params }: { params: { id: string } }) => {
 					String(product.insurance?.premiumValue),
 				],
 			});
-
-			setIdentity(response.data);
-			setShowModal(true);
+			if (smartcontractResponse?.success && smartcontractResponse?.data) {
+				setIdentity(identityResponse.data);
+				setShowModal(true);
+			} else {
+				alert(smartcontractResponse?.message);
+			}
 		} else {
-			alert(response?.message);
+			alert(identityResponse?.message);
 		}
 
 		setBtnLoading(false);

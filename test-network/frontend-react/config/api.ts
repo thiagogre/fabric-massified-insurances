@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:3001";
+const SERVER_PORT = process.env.NEXT_PUBLIC_SERVER_PORT;
+const API_BASE_URL = `http://localhost:${SERVER_PORT}`;
 
 const query = async (params: Record<string, any>): Promise<any> => {
 	const queryString = new URLSearchParams(params).toString();

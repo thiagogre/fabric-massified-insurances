@@ -5,6 +5,15 @@
 #   Only the function 'run_command_in_new_tab' relies on it
 #
 
+PORT_BE_INSURER=3001
+PORT_FE_INSURER=3011
+
+PORT_BE_PARTNER=3002
+PORT_FE_PARTNER=3012
+
+PORT_BE_EVIDENCE_ANALYST=3003
+PORT_FE_EVIDENCE_ANALYST=3013
+
 display_message() {
     local RED='\033[31m'
     local GREEN='\033[32m'
@@ -88,7 +97,7 @@ run_command_in_new_tab "cd rest-api-go && go run main.go \
                                             -keyPath="../organizations/peerOrganizations/org1.example.com/users/ClaimAnalyst@org1.example.com/msp/keystore/" \
                                             -tlsCertPath="../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" \
                                             -peerEndpoint="dns:///localhost:7051" -gatewayPeer="peer0.org1.example.com" \
-                                            -port=3001" "BE Insurer"
+                                            -port=$PORT_BE_INSURER" "BE Insurer"
 
 run_command_in_new_tab "cd rest-api-go && go run main.go \
                                             -orgName="Org2" \
@@ -97,7 +106,7 @@ run_command_in_new_tab "cd rest-api-go && go run main.go \
                                             -keyPath="../organizations/peerOrganizations/org2.example.com/users/Partner@org2.example.com/msp/keystore/" \
                                             -tlsCertPath="../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" \
                                             -peerEndpoint="dns:///localhost:9051" -gatewayPeer="peer0.org2.example.com" \
-                                            -port=3002" "BE Partner"
+                                            -port=$PORT_BE_PARTNER" "BE Partner"
 
 run_command_in_new_tab "cd rest-api-go && go run main.go \
                                             -orgName="Org3" \
@@ -106,9 +115,11 @@ run_command_in_new_tab "cd rest-api-go && go run main.go \
                                             -keyPath="../organizations/peerOrganizations/org3.example.com/users/EvidenceAnalyst@org3.example.com/msp/keystore/" \
                                             -tlsCertPath="../organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt" \
                                             -peerEndpoint="dns:///localhost:11051" -gatewayPeer="peer0.org3.example.com" \
-                                            -port=3003" "BE EvidenceAnalyst"
+                                            -port=$PORT_BE_EVIDENCE_ANALYST" "BE EvidenceAnalyst"
 
-run_command_in_new_tab "cd frontend-react && yarn dev" "Frontend"
+run_command_in_new_tab "cd frontend-react && PORT=$PORT_FE_INSURER NEXT_PUBLIC_SERVER_PORT=$PORT_BE_INSURER yarn dev" "FE Insurer"
+run_command_in_new_tab "cd frontend-react && PORT=$PORT_FE_PARTNER NEXT_PUBLIC_SERVER_PORT=$PORT_BE_PARTNER yarn dev" "FE Partner"
+run_command_in_new_tab "cd frontend-react && PORT=$PORT_FE_EVIDENCE_ANALYST NEXT_PUBLIC_SERVER_PORT=$PORT_BE_EVIDENCE_ANALYST yarn dev" "FE EvidenceAnalyst"
 
 run_command "./update-explorer-test-network.sh ./organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore ./explorer/connection-profile/test-network.json organizations.Org1MSP.adminPrivateKey.path"
 # `sudo cp -r` doesn't copy the keys
