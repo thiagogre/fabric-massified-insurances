@@ -87,9 +87,9 @@ func (s *SmartContract) readState(ctx contractapi.TransactionContextInterface, i
 
 // CreateAsset issues a new insurance policy asset to the world state with given details.
 func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, insured string, coverageDuration int, converageValue int, coverageType int, partner string, premium int) error {
-	// if err := validateABAC(ctx, []string{"partner"}); err != nil {
-	// 	return err
-	// }
+	if err := s.validateABAC(ctx, []string{"partner"}); err != nil {
+		return err
+	}
 
 	asset, err := s.readState(ctx, id)
 	if err != nil {
@@ -99,15 +99,15 @@ func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("the asset %s already exist", id)
 	}
 
-	// clientID, err := s.getSubmittingClientIdentity(ctx)
-	// if err != nil {
-	// 	return err
-	// }
+	clientID, err := s.getSubmittingClientIdentity(ctx)
+	if err != nil {
+		return err
+	}
 
 	newAsset := Asset{
 		ID:               id,
 		Insured:          insured,
-		Partner:          partner,
+		Partner:          clientID,
 		CoverageDuration: coverageDuration,
 		CoverageType:     coverageType,
 		CoverageValue:    converageValue,
@@ -139,7 +139,7 @@ func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, i
 
 // UpdateAsset updates an existing insurance policy in the world state with provided parameters.
 func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, insured string, coverageDuration int, converageValue int, coverageType int, partner string, premium int, claimStatus string) error {
-	// if err := validateABAC(ctx, []string{"abac.evidence_analyst"}); err != nil {
+	// if err := s.validateABAC(ctx, []string{"abac.evidence_analyst"}); err != nil {
 	// 	return err
 	// }
 
@@ -188,29 +188,6 @@ func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 
 	ctx.GetStub().SetEvent("DeleteAsset", assetBytes)
 	return ctx.GetStub().DelState(id)
-}
-
-// TransferAsset updates the insured field of asset with given id in world state, and returns the old insured.
-func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterface, id string, newInsured string) (string, error) {
-	asset, err := s.ReadAsset(ctx, id)
-	if err != nil {
-		return "", err
-	}
-
-	oldInsured := asset.Insured
-	asset.Insured = newInsured
-
-	assetBytes, err := json.Marshal(asset)
-	if err != nil {
-		return "", err
-	}
-
-	err = ctx.GetStub().PutState(id, assetBytes)
-	if err != nil {
-		return "", err
-	}
-
-	return oldInsured, nil
 }
 
 // GetAllAssets returns all assets found in world state
@@ -343,7 +320,7 @@ func (s *SmartContract) getSubmittingClientIdentity(ctx contractapi.TransactionC
 
 // validateABAC checks whether the client identity has at least one of the
 // required roles to perform an action.
-func validateABAC(ctx contractapi.TransactionContextInterface, roles []string) error {
+func (s *SmartContract) validateABAC(ctx contractapi.TransactionContextInterface, roles []string) error {
 	authorized := false
 	for _, role := range roles {
 		err := ctx.GetClientIdentity().AssertAttributeValue("abac.role", role)
